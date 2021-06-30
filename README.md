@@ -20,8 +20,8 @@ but theoretically should be possible with a firmware change.
 
 
 # Tools
-- [AVR Prog](AvrProg/AvrPrg.exe)
-- [JTAGICE command line programmer (v 1.2 Mar)](JTAGICE/jtagice.exe)
+- [AVR Prog](AvrProg/AvrProg.exe?raw=true)
+- [JTAGICE command line programmer (v 1.2 Mar)](JTAGICE/jtagice.exe?raw=true)
 
 
 ## Drivers 
