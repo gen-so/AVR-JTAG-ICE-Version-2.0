@@ -15,5 +15,14 @@ but theoretically should be possible with a firmware change.
 - HC 245
 
 
+# Installation Guide
+- https://www.electrodragon.com/w/AVR_USB_JTAG_ICE_Programmer
+
+
+# Tools
+- [AVR Prog](AvrProg/AvrPrg.exe)
+- [JTAGICE command line programmer (v 1.2 Mar)](JTAGICE/jtagice.exe)
+
+
 ## Drivers 
 Official driver page : http://www.wch.cn/download/ch341ser_exe.html
