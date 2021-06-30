@@ -7,6 +7,10 @@ This is a little device to program & debug AVR chips that have JTAG support, cal
 "AVR JTAG ICE Version 2.0". Whether it can program AVR chips via ISP remains a mistery still,
 but theoretically should be possible with a firmware change.
 
+Protocols suppotred:
+- JTAG
+- UPDI (firmware needs to be changed - [GUIDE](https://github.com/ElTangas/jtag2updi/tree/master/tools/avrjtagicev2))
+
 
 ## Design
 
@@ -22,7 +26,7 @@ but theoretically should be possible with a firmware change.
 # Tools
 - [AVR Prog](AvrProg/AvrProg.exe?raw=true)
 - [JTAGICE command line programmer (v 1.2 Mar)](JTAGICE/jtagice.exe?raw=true)
-
+- [AVR AOSP python programmer](https://github.com/cbalint13/avr-aosp) : this can be use to upload custom firmwares
 
 ## Drivers 
 Official driver page : http://www.wch.cn/download/ch341ser_exe.html
