@@ -1,0 +1,20 @@
+CodeVisionAVR C Compiler V1.25.9 Standard
+(C) Copyright 1998-2008 Pavel Haiduc, HP InfoTech s.r.l.
+http://www.hpinfotech.com
+
+File: d:\codevisionavr\atmega16a_jtagprog_v0100\main.c
+Global variables memory map:
+
+Variable                          Address   Size
+ucCPU_led_timer                                                         R5      1
+uiCPU_ms_timer                                                       R6,R7      2
+cJTAG_prog_mode                                                         R4      1
+ucTerminal_memory_buff                                                160h    256
+uiTerminal_size_flpage                                               R8,R9      2
+uiTerminal_size_eepage                                             R10,R11      2
+ucUART_receive_rdmarker                                                R13      1
+ucUART_receive_wrmarker                                                R12      1
+ucUART_inbuf                                                          260h     64
+ucUART_transmit_rdmarker                                              2A0h      1
+ucUART_transmit_wrmarker                                              2A1h      1
+ucUART_outbuf                                                         2A2h     64

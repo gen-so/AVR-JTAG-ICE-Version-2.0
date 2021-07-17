@@ -1,0 +1,188 @@
+//------------------------------------------------------------------
+// Описание: Модуль обсуживания  приемо-передатчика UART
+// Тип микроконтроллера: 
+// Автор: Тарасов Михаил Николаевич
+// Версия модуля: 1.0   - 
+//------------------------------------------------------------------
+#include "main.h"
+
+#define UART_TYPEADDR		0x01
+#define UART_TYPETK		0xF0			//идентификатор контроллера
+
+#define UART_RECEIVE_TIMER 	60		        //время ожидания прихода команды из UART  100ms
+#define UART_TRANSMIT_TIMER 	400			//время ожидания отправки команды в UART  100 * 4ms
+
+#define UART_LEN_INBUFFER	64                      //размер входного буфера
+#define UART_LEN_OUTBUFFER	16                      //размер выходного буфера
+
+#define UART_RECEIVE_WAIT	0
+#define UART_RECEIVE_START	1
+#define UART_RECEIVE_END	2
+
+#define UART_FRAME_START	0x80                    //заголовок фрейма
+//------------------------------------------------------------------
+//Описание: переменные UART 
+//------------------------------------------------------------------
+ unsigned char ucUART_receive_marker;			//маркер буфера
+ unsigned char ucUART_receive_len;			//число полученных байт 
+ unsigned char ucUART_receive_flg;
+ unsigned int  uiUART_receive_timer;			//время за которое должна прийти команда
+
+ unsigned char ucUART_transmit_marker;			//маркер буфера
+ unsigned char ucUART_transmit_len;			//длина пакета
+ unsigned int  uiUART_transmit_timer;			//время за которое должна прийти команда
+ unsigned char ucUART_inbuf[UART_LEN_INBUFFER];		//буфер принимаемой команды 
+ unsigned char ucUART_outbuf[UART_LEN_OUTBUFFER];	//буфер принимаемой команды 
+
+
+//-------------------------------------------------------------------
+// описание: Инициализация переменных приемника
+// параметры:    нет
+// возвращаемое  значение:  нет 
+//-------------------------------------------------------------------
+void UART_ini_receive_data(void)
+{
+ ucUART_receive_marker =0;
+ ucUART_receive_len    =0;				//длина пакета
+ ucUART_receive_flg    = UART_RECEIVE_WAIT;
+}
+//-------------------------------------------------------------------
+// описание: Инициализация переменных передатчика
+// параметры:    нет
+// возвращаемое  значение:  нет 
+//-------------------------------------------------------------------
+void UART_ini_transmit_data(void)
+{
+ ucUART_transmit_marker =0;
+ ucUART_transmit_len    =0;				//длина пакета
+ UCSR1B = UCSR1B & 0xBF;
+}
+//----------------------------------------------------------------------
+// описание:   Инициализация переменных канала UART
+// параметры:  нет
+// возвращаемое  значение:   нет
+//----------------------------------------------------------------------
+void UART_ini_variable_data(void)
+{
+ UCSR1B  = 0x98;
+ UCSR1C  = 0x3E;					// 2 стоповых бита и нечтность
+ UBRR1H  = 0;	                                  	
+ UBRR1L  = 0x6E;                                  	// UART1 9000(0x6E)
+ UART_ini_receive_data();
+ UART_ini_transmit_data();
+}
+//-------------------------------------------------------------------
+// описание: Проверка состояния приемного буфера и его разбор
+// параметры:    нет
+// возвращаемое  значение:  нет 
+//-------------------------------------------------------------------
+void UART_processing(void)
+{
+ if(ucUART_receive_flg == UART_RECEIVE_END)             //прием закончен
+  {
+   Terminal_cmd_analyze(&ucUART_inbuf[0]);         //анализ пришедшей команды
+   UART_ini_receive_data();
+  }
+ if(ucUART_receive_flg == UART_RECEIVE_START)	//проверим таймер на прием пакета
+   {
+    if((CPU_get_timer_ms() - uiUART_receive_timer) >= UART_RECEIVE_TIMER)
+     {
+      CPU_printf("Over");
+      UART_ini_receive_data();
+     }
+   }
+ if(ucUART_transmit_len !=0)                 		//обслуживание передатчика
+  {
+   if((CPU_get_timer_ms() - uiUART_transmit_timer) >= UART_TRANSMIT_TIMER) UART_ini_transmit_data();
+  }
+}
+//-------------------------------------------------------------------
+// описание: Отправка сообщения в UART
+// параметры:    ucMas - массив для передачи
+//		 ucLen - размер массива
+// возвращаемое  значение:  нет 
+//-------------------------------------------------------------------
+void UART_transmit_data(unsigned char *ucMas, unsigned char ucLen)
+{
+ unsigned char i;
+ unsigned char ucCrc;
+ ucUART_outbuf[0] = UART_TYPEADDR;
+ ucUART_outbuf[1] = UART_TYPETK;
+ ucUART_outbuf[2] = ucLen +1;
+ for(i=0; i<ucLen;i++)
+  {
+   ucUART_outbuf[i+3] = *ucMas;
+   ucMas = ucMas +1;
+  }
+ ucUART_outbuf[i+3] = ucCrc;
+ ucUART_transmit_len = i +3;
+ ucUART_transmit_marker =0;
+ uiUART_transmit_timer = CPU_get_timer_ms();
+ UDR1 = UART_FRAME_START;					//отправляем заголовок фрейма 
+ UCSR1B = UCSR1B | 0x40;					//разрешим передачу символа
+}
+//-------------------------------------------------------------------
+// описание: Отправка одного байта в UART
+// параметры:    ucByte - байт данных
+// возвращаемое  значение:  нет 
+//-------------------------------------------------------------------
+void UART_send_byte(unsigned char ucByte)
+{
+ UDR1 = ucByte;					        //отправляем байт в порт 
+}
+//-------------------------------------------------------------------
+// описание: Обработка прерывание от приемника UART 
+// параметры:    нет
+// возвращаемое  значение:  нет 
+//-------------------------------------------------------------------
+interrupt [USART1_RXC] void Uart_rxc(void)
+{
+ unsigned char ucByte;
+ unsigned char ucLen;
+ ucByte = UDR1;						        //прочитаем байт и очистим флаг приема(
+ if(ucUART_receive_flg != UART_RECEIVE_END)
+   {
+ CPU_put_hex(ucByte);
+    ucUART_receive_flg = UART_RECEIVE_START;                    //установим признак начала приема 
+    ucUART_inbuf[ucUART_receive_marker] = ucByte;                //сохраним принятый байт в приемном буфере 
+    ucUART_receive_marker = ucUART_receive_marker +1; 
+    if(ucUART_receive_marker > 1)
+     {
+      if(ucUART_receive_marker == 2)
+       {
+        ucLen = Terminal_check_cmd(ucByte);	                //проверяем количество необходимых байт на команду?
+//CPU_put_hex(ucByte);
+//CPU_put_hex(ucLen);
+        if(ucLen == 2) ucUART_receive_flg = UART_RECEIVE_END;   //длина команды 2 байта
+        else 
+         { 
+           if(ucLen !=0) ucUART_receive_len = ucLen; 
+           else UART_ini_receive_data();
+         }
+       }
+      else                                                   //иначе длина не равна 2 байтам
+       {
+        if(ucUART_receive_marker == ucUART_receive_len) ucUART_receive_flg = UART_RECEIVE_END;//значит это не первый байт
+        else
+         {
+          if(ucUART_receive_marker > ucUART_receive_len) UART_ini_receive_data();
+         } 
+        }
+     }  
+    uiUART_receive_timer = CPU_get_timer_ms();             //переустановим таймер              
+   } 
+}
+//-------------------------------------------------------------------
+// описание: Обработка прерывание от передатчика UART 
+// параметры:    нет
+// возвращаемое  значение:  нет 
+//-------------------------------------------------------------------
+interrupt [USART1_TXC] void Uart_txc(void)
+{
+ if(ucUART_transmit_marker <= ucUART_transmit_len)	//пакет еще не приняли
+  {
+   UDR1 = ucUART_outbuf[ucUART_transmit_marker];
+   ucUART_transmit_marker = ucUART_transmit_marker +1;
+  }
+ else UART_ini_transmit_data();
+}

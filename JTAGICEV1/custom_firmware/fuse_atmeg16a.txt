@@ -1,0 +1,25 @@
+Fuse High Byte (default 0x99) - AVR_Prog = 0x99
+
+OCDEN		- [1]
+JTAGEN		- [0]
+SPIEN		- [0]
+CKOPT		- [1]
+EESAVE		- [1]
+BOOTSZ1		- [0]
+BOOTSZ0		- [0]
+BOOTRST		- [1]
+
+Fuse Low Byte (default 0xE1) - AVR_Prog = 0xDF 
+
+BODLEVEL	- [1]
+BODEN		- [1]
+SUT1		- [0]
+SUT0		- [1]
+CKSEL3		- [1]
+CKSEL2		- [1]
+CKSEL1		- [1]
+CKSEL0		- [1]
+ 
+
+1 - unprogrammed
+0 - programmed

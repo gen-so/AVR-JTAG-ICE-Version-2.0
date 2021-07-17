@@ -1,0 +1,197 @@
+//Microsoft Developer Studio generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#define APSTUDIO_HIDDEN_SYMBOLS
+#include "windows.h"
+#undef APSTUDIO_HIDDEN_SYMBOLS
+#include "resource.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// Russian resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_RUS)
+#ifdef _WIN32
+LANGUAGE LANG_RUSSIAN, SUBLANG_DEFAULT
+#pragma code_page(1251)
+#endif //_WIN32
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+ID_AT90USB1287_JTAG_PROGRAMMER DIALOG DISCARDABLE  0, 0, 367, 166
+STYLE DS_MODALFRAME | DS_CENTER | WS_MINIMIZEBOX | WS_POPUP | WS_CAPTION | 
+    WS_SYSMENU
+CAPTION "AT90USB1287 JTAG PROGRAMMER: ZXM-Zephyr firmware update"
+CLASS "AT90USB1287_JTAG_PROGRAMMER"
+FONT 8, "MS Sans Serif"
+BEGIN
+    CTEXT           "",IDC_STATIC_STATUS,5,155,235,10,SS_SUNKEN
+    CTEXT           "",IDC_STATIC_TIME,244,155,120,10,SS_SUNKEN
+    GROUPBOX        "FLASH",IDC_STATIC,5,45,235,105
+    GROUPBOX        " COM порт: ",IDC_STATIC,5,5,235,35
+    CONTROL         "",IDC_STATIC_FILEIN,"Static",SS_LEFTNOWORDWRAP | 
+                    SS_SUNKEN | WS_GROUP,40,61,135,13
+    PUSHBUTTON      "Записать",IDC_BUTTON_WRITE,10,120,110,18,WS_DISABLED
+    PUSHBUTTON      "Выбор ",IDC_BUTTON_LOAD,182,60,50,15
+    PUSHBUTTON      "Выход",IDC_BUTTON_EXIT,125,120,110,18
+    COMBOBOX        IDC_COM_NUMBER,104,20,105,105,CBS_DROPDOWNLIST | 
+                    CBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Номер порта:",IDC_STATIC,48,21,48,8
+    LTEXT           "Файл:",IDC_STATIC,10,63,25,10
+    CONTROL         "Progress1",IDC_PROGRESS1,"msctls_progress32",PBS_SMOOTH,
+                    40,90,135,16
+    CTEXT           "100%",IDC_STATIC_PROGRESS2,182,92,36,10
+    LTEXT           "Статус:",IDC_STATIC,10,92,25,10
+    GROUPBOX        "О программе:",IDC_STATIC,245,5,120,145
+    CONTROL         135,IDC_STATIC,"Static",SS_BITMAP | SS_SUNKEN,275,20,63,
+                    63
+    LTEXT           "Версия: v1.00",IDC_STATIC,279,86,50,10
+    LTEXT           "Mick Laboratory, 2014",IDC_STATIC,268,110,82,10
+    LTEXT           "micklab@mail.ru",IDC_STATIC,275,123,59,10
+    LTEXT           "www.micklab.narod.ru",IDC_STATIC,270,136,75,10
+    LTEXT           "by Mick",IDC_STATIC,290,98,25,10
+END
+
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "resource.h\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDI_ICON1               ICON    DISCARDABLE     "100561.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+IDB_BITMAP1             BITMAP  DISCARDABLE     "avatar503_1.bmp"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO DISCARDABLE 
+BEGIN
+    ID_AT90USB1287_JTAG_PROGRAMMER, DIALOG
+    BEGIN
+        RIGHTMARGIN, 365
+        BOTTOMMARGIN, 159
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+#endif    // Russian resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+2 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#define APSTUDIO_HIDDEN_SYMBOLS\r\n"
+    "#include ""windows.h""\r\n"
+    "#undef APSTUDIO_HIDDEN_SYMBOLS\r\n"
+    "#include ""resource.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDI_AT90USB1287_JTAG_PROGRAMMER ICON    DISCARDABLE     "AT90USB1287_JTAG_PROGRAMMER.ICO"
+IDI_SMALL               ICON    DISCARDABLE     "SMALL.ICO"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Accelerator
+//
+
+IDC_AT90USB1287_JTAG_PROGRAMMER ACCELERATORS MOVEABLE PURE 
+BEGIN
+    "?",            IDM_ABOUT,              ASCII,  ALT
+    "/",            IDM_ABOUT,              ASCII,  ALT
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_APP_TITLE           "at90usb1287_jtag_programmer"
+    IDC_AT90USB1287_JTAG_PROGRAMMER "AT90USB1287_JTAG_PROGRAMMER"
+END
+
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

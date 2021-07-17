@@ -1,0 +1,4817 @@
+
+AVRASM ver. 2.1.9  main.asm Thu Mar 13 10:24:40 2014
+
+main.asm(989): Including file 'main.vec'
+main.asm(990): Including file 'main.inc'
+main.inc(2): warning: Register r5 already defined by the .DEF directive
+main.asm(990): 'main.inc' included form here
+main.inc(3): warning: Register r6 already defined by the .DEF directive
+main.asm(990): 'main.inc' included form here
+main.inc(4): warning: Register r4 already defined by the .DEF directive
+main.asm(990): 'main.inc' included form here
+main.inc(5): warning: Register r8 already defined by the .DEF directive
+main.asm(990): 'main.inc' included form here
+main.inc(6): warning: Register r10 already defined by the .DEF directive
+main.asm(990): 'main.inc' included form here
+main.inc(7): warning: Register r13 already defined by the .DEF directive
+main.asm(990): 'main.inc' included form here
+main.inc(8): warning: Register r12 already defined by the .DEF directive
+main.asm(990): 'main.inc' included form here
+                 
+                 
+                 ;CodeVisionAVR C Compiler V1.25.9 Standard
+                 ;(C) Copyright 1998-2008 Pavel Haiduc, HP InfoTech s.r.l.
+                 ;http://www.hpinfotech.com
+                 
+                 ;Chip type              : ATmega16
+                 ;Program type           : Application
+                 ;Clock frequency        : 8,000000 MHz
+                 ;Memory model           : Small
+                 ;Optimize for           : Speed
+                 ;(s)printf features     : int
+                 ;(s)scanf features      : int, width
+                 ;External SRAM size     : 0
+                 ;Data Stack size        : 256 byte(s)
+                 ;Heap size              : 0 byte(s)
+                 ;Promote char to int    : No
+                 ;char is unsigned       : Yes
+                 ;8 bit enums            : Yes
+                 ;Word align FLASH struct: Yes
+                 ;Enhanced core instructions    : On
+                 ;Smart register allocation : On
+                 ;Automatic register allocation : On
+                 
+                 	#pragma AVRPART ADMIN PART_NAME ATmega16
+                 	#pragma AVRPART MEMORY PROG_FLASH 16384
+                 	#pragma AVRPART MEMORY EEPROM 512
+                 	#pragma AVRPART MEMORY INT_SRAM SIZE 1024
+                 	#pragma AVRPART MEMORY INT_SRAM START_ADDR 0x60
+                 
+                 	.EQU UDRE=0x5
+                 	.EQU RXC=0x7
+                 	.EQU USR=0xB
+                 	.EQU UDR=0xC
+                 	.EQU SPSR=0xE
+                 	.EQU SPDR=0xF
+                 	.EQU EERE=0x0
+                 	.EQU EEWE=0x1
+                 	.EQU EEMWE=0x2
+                 	.EQU EECR=0x1C
+                 	.EQU EEDR=0x1D
+                 	.EQU EEARL=0x1E
+                 	.EQU EEARH=0x1F
+                 	.EQU WDTCR=0x21
+                 	.EQU MCUCR=0x35
+                 	.EQU GICR=0x3B
+                 	.EQU SPL=0x3D
+                 	.EQU SPH=0x3E
+                 	.EQU SREG=0x3F
+                 
+                 	.DEF R0X0=R0
+                 	.DEF R0X1=R1
+                 	.DEF R0X2=R2
+                 	.DEF R0X3=R3
+                 	.DEF R0X4=R4
+                 	.DEF R0X5=R5
+                 	.DEF R0X6=R6
+                 	.DEF R0X7=R7
+                 	.DEF R0X8=R8
+                 	.DEF R0X9=R9
+                 	.DEF R0XA=R10
+                 	.DEF R0XB=R11
+                 	.DEF R0XC=R12
+                 	.DEF R0XD=R13
+                 	.DEF R0XE=R14
+                 	.DEF R0XF=R15
+                 	.DEF R0X10=R16
+                 	.DEF R0X11=R17
+                 	.DEF R0X12=R18
+                 	.DEF R0X13=R19
+                 	.DEF R0X14=R20
+                 	.DEF R0X15=R21
+                 	.DEF R0X16=R22
+                 	.DEF R0X17=R23
+                 	.DEF R0X18=R24
+                 	.DEF R0X19=R25
+                 	.DEF R0X1A=R26
+                 	.DEF R0X1B=R27
+                 	.DEF R0X1C=R28
+                 	.DEF R0X1D=R29
+                 	.DEF R0X1E=R30
+                 	.DEF R0X1F=R31
+                 
+                 	.MACRO __CPD1N
+                 	CPI  R30,LOW(@0)
+                 	LDI  R26,HIGH(@0)
+                 	CPC  R31,R26
+                 	LDI  R26,BYTE3(@0)
+                 	CPC  R22,R26
+                 	LDI  R26,BYTE4(@0)
+                 	CPC  R23,R26
+                 	.ENDM
+                 
+                 	.MACRO __CPD2N
+                 	CPI  R26,LOW(@0)
+                 	LDI  R30,HIGH(@0)
+                 	CPC  R27,R30
+                 	LDI  R30,BYTE3(@0)
+                 	CPC  R24,R30
+                 	LDI  R30,BYTE4(@0)
+                 	CPC  R25,R30
+                 	.ENDM
+                 
+                 	.MACRO __CPWRR
+                 	CP   R@0,R@2
+                 	CPC  R@1,R@3
+                 	.ENDM
+                 
+                 	.MACRO __CPWRN
+                 	CPI  R@0,LOW(@2)
+                 	LDI  R30,HIGH(@2)
+                 	CPC  R@1,R30
+                 	.ENDM
+                 
+                 	.MACRO __ADDB1MN
+                 	SUBI R30,LOW(-@0-(@1))
+                 	.ENDM
+                 	.MACRO __ADDB2MN
+                 	SUBI R26,LOW(-@0-(@1))
+                 	.ENDM
+                 	.MACRO __ADDW1MN
+                 	SUBI R30,LOW(-@0-(@1))
+                 	SBCI R31,HIGH(-@0-(@1))
+                 	.ENDM
+                 	.MACRO __ADDW2MN
+                 	SUBI R26,LOW(-@0-(@1))
+                 	SBCI R27,HIGH(-@0-(@1))
+                 	.ENDM
+                 	.MACRO __ADDW1FN
+                 	SUBI R30,LOW(-2*@0-(@1))
+                 	SBCI R31,HIGH(-2*@0-(@1))
+                 	.ENDM
+                 	.MACRO __ADDD1FN
+                 	SUBI R30,LOW(-2*@0-(@1))
+                 	SBCI R31,HIGH(-2*@0-(@1))
+                 	SBCI R22,BYTE3(-2*@0-(@1))
+                 	.ENDM
+                 	.MACRO __ADDD1N
+                 	SUBI R30,LOW(-@0)
+                 	SBCI R31,HIGH(-@0)
+                 	SBCI R22,BYTE3(-@0)
+                 	SBCI R23,BYTE4(-@0)
+                 	.ENDM
+                 
+                 	.MACRO __ADDD2N
+                 	SUBI R26,LOW(-@0)
+                 	SBCI R27,HIGH(-@0)
+                 	SBCI R24,BYTE3(-@0)
+                 	SBCI R25,BYTE4(-@0)
+                 	.ENDM
+                 
+                 	.MACRO __SUBD1N
+                 	SUBI R30,LOW(@0)
+                 	SBCI R31,HIGH(@0)
+                 	SBCI R22,BYTE3(@0)
+                 	SBCI R23,BYTE4(@0)
+                 	.ENDM
+                 
+                 	.MACRO __SUBD2N
+                 	SUBI R26,LOW(@0)
+                 	SBCI R27,HIGH(@0)
+                 	SBCI R24,BYTE3(@0)
+                 	SBCI R25,BYTE4(@0)
+                 	.ENDM
+                 
+                 	.MACRO __ANDBMNN
+                 	LDS  R30,@0+@1
+                 	ANDI R30,LOW(@2)
+                 	STS  @0+@1,R30
+                 	.ENDM
+                 
+                 	.MACRO __ANDWMNN
+                 	LDS  R30,@0+@1
+                 	ANDI R30,LOW(@2)
+                 	STS  @0+@1,R30
+                 	LDS  R30,@0+@1+1
+                 	ANDI R30,HIGH(@2)
+                 	STS  @0+@1+1,R30
+                 	.ENDM
+                 
+                 	.MACRO __ANDD1N
+                 	ANDI R30,LOW(@0)
+                 	ANDI R31,HIGH(@0)
+                 	ANDI R22,BYTE3(@0)
+                 	ANDI R23,BYTE4(@0)
+                 	.ENDM
+                 
+                 	.MACRO __ORBMNN
+                 	LDS  R30,@0+@1
+                 	ORI  R30,LOW(@2)
+                 	STS  @0+@1,R30
+                 	.ENDM
+                 
+                 	.MACRO __ORWMNN
+                 	LDS  R30,@0+@1
+                 	ORI  R30,LOW(@2)
+                 	STS  @0+@1,R30
+                 	LDS  R30,@0+@1+1
+                 	ORI  R30,HIGH(@2)
+                 	STS  @0+@1+1,R30
+                 	.ENDM
+                 
+                 	.MACRO __ORD1N
+                 	ORI  R30,LOW(@0)
+                 	ORI  R31,HIGH(@0)
+                 	ORI  R22,BYTE3(@0)
+                 	ORI  R23,BYTE4(@0)
+                 	.ENDM
+                 
+                 	.MACRO __DELAY_USB
+                 	LDI  R24,LOW(@0)
+                 __DELAY_USB_LOOP:
+                 	DEC  R24
+                 	BRNE __DELAY_USB_LOOP
+                 	.ENDM
+                 
+                 	.MACRO __DELAY_USW
+                 	LDI  R24,LOW(@0)
+                 	LDI  R25,HIGH(@0)
+                 __DELAY_USW_LOOP:
+                 	SBIW R24,1
+                 	BRNE __DELAY_USW_LOOP
+                 	.ENDM
+                 
+                 	.MACRO __CLRD1S
+                 	LDI  R30,0
+                 	STD  Y+@0,R30
+                 	STD  Y+@0+1,R30
+                 	STD  Y+@0+2,R30
+                 	STD  Y+@0+3,R30
+                 	.ENDM
+                 
+                 	.MACRO __GETD1S
+                 	LDD  R30,Y+@0
+                 	LDD  R31,Y+@0+1
+                 	LDD  R22,Y+@0+2
+                 	LDD  R23,Y+@0+3
+                 	.ENDM
+                 
+                 	.MACRO __PUTD1S
+                 	STD  Y+@0,R30
+                 	STD  Y+@0+1,R31
+                 	STD  Y+@0+2,R22
+                 	STD  Y+@0+3,R23
+                 	.ENDM
+                 
+                 	.MACRO __PUTD2S
+                 	STD  Y+@0,R26
+                 	STD  Y+@0+1,R27
+                 	STD  Y+@0+2,R24
+                 	STD  Y+@0+3,R25
+                 	.ENDM
+                 
+                 	.MACRO __POINTB1MN
+                 	LDI  R30,LOW(@0+@1)
+                 	.ENDM
+                 
+                 	.MACRO __POINTW1MN
+                 	LDI  R30,LOW(@0+@1)
+                 	LDI  R31,HIGH(@0+@1)
+                 	.ENDM
+                 
+                 	.MACRO __POINTD1M
+                 	LDI  R30,LOW(@0)
+                 	LDI  R31,HIGH(@0)
+                 	LDI  R22,BYTE3(@0)
+                 	LDI  R23,BYTE4(@0)
+                 	.ENDM
+                 
+                 	.MACRO __POINTW1FN
+                 	LDI  R30,LOW(2*@0+@1)
+                 	LDI  R31,HIGH(2*@0+@1)
+                 	.ENDM
+                 
+                 	.MACRO __POINTD1FN
+                 	LDI  R30,LOW(2*@0+@1)
+                 	LDI  R31,HIGH(2*@0+@1)
+                 	LDI  R22,BYTE3(2*@0+@1)
+                 	LDI  R23,BYTE4(2*@0+@1)
+                 	.ENDM
+                 
+                 	.MACRO __POINTB2MN
+                 	LDI  R26,LOW(@0+@1)
+                 	.ENDM
+                 
+                 	.MACRO __POINTW2MN
+                 	LDI  R26,LOW(@0+@1)
+                 	LDI  R27,HIGH(@0+@1)
+                 	.ENDM
+                 
+                 	.MACRO __POINTBRM
+                 	LDI  R@0,LOW(@1)
+                 	.ENDM
+                 
+                 	.MACRO __POINTWRM
+                 	LDI  R@0,LOW(@2)
+                 	LDI  R@1,HIGH(@2)
+                 	.ENDM
+                 
+                 	.MACRO __POINTBRMN
+                 	LDI  R@0,LOW(@1+@2)
+                 	.ENDM
+                 
+                 	.MACRO __POINTWRMN
+                 	LDI  R@0,LOW(@2+@3)
+                 	LDI  R@1,HIGH(@2+@3)
+                 	.ENDM
+                 
+                 	.MACRO __POINTWRFN
+                 	LDI  R@0,LOW(@2*2+@3)
+                 	LDI  R@1,HIGH(@2*2+@3)
+                 	.ENDM
+                 
+                 	.MACRO __GETD1N
+                 	LDI  R30,LOW(@0)
+                 	LDI  R31,HIGH(@0)
+                 	LDI  R22,BYTE3(@0)
+                 	LDI  R23,BYTE4(@0)
+                 	.ENDM
+                 
+                 	.MACRO __GETD2N
+                 	LDI  R26,LOW(@0)
+                 	LDI  R27,HIGH(@0)
+                 	LDI  R24,BYTE3(@0)
+                 	LDI  R25,BYTE4(@0)
+                 	.ENDM
+                 
+                 	.MACRO __GETD2S
+                 	LDD  R26,Y+@0
+                 	LDD  R27,Y+@0+1
+                 	LDD  R24,Y+@0+2
+                 	LDD  R25,Y+@0+3
+                 	.ENDM
+                 
+                 	.MACRO __GETB1MN
+                 	LDS  R30,@0+@1
+                 	.ENDM
+                 
+                 	.MACRO __GETB1HMN
+                 	LDS  R31,@0+@1
+                 	.ENDM
+                 
+                 	.MACRO __GETW1MN
+                 	LDS  R30,@0+@1
+                 	LDS  R31,@0+@1+1
+                 	.ENDM
+                 
+                 	.MACRO __GETD1MN
+                 	LDS  R30,@0+@1
+                 	LDS  R31,@0+@1+1
+                 	LDS  R22,@0+@1+2
+                 	LDS  R23,@0+@1+3
+                 	.ENDM
+                 
+                 	.MACRO __GETBRMN
+                 	LDS  R@0,@1+@2
+                 	.ENDM
+                 
+                 	.MACRO __GETWRMN
+                 	LDS  R@0,@2+@3
+                 	LDS  R@1,@2+@3+1
+                 	.ENDM
+                 
+                 	.MACRO __GETWRZ
+                 	LDD  R@0,Z+@2
+                 	LDD  R@1,Z+@2+1
+                 	.ENDM
+                 
+                 	.MACRO __GETD2Z
+                 	LDD  R26,Z+@0
+                 	LDD  R27,Z+@0+1
+                 	LDD  R24,Z+@0+2
+                 	LDD  R25,Z+@0+3
+                 	.ENDM
+                 
+                 	.MACRO __GETB2MN
+                 	LDS  R26,@0+@1
+                 	.ENDM
+                 
+                 	.MACRO __GETW2MN
+                 	LDS  R26,@0+@1
+                 	LDS  R27,@0+@1+1
+                 	.ENDM
+                 
+                 	.MACRO __GETD2MN
+                 	LDS  R26,@0+@1
+                 	LDS  R27,@0+@1+1
+                 	LDS  R24,@0+@1+2
+                 	LDS  R25,@0+@1+3
+                 	.ENDM
+                 
+                 	.MACRO __PUTB1MN
+                 	STS  @0+@1,R30
+                 	.ENDM
+                 
+                 	.MACRO __PUTW1MN
+                 	STS  @0+@1,R30
+                 	STS  @0+@1+1,R31
+                 	.ENDM
+                 
+                 	.MACRO __PUTD1MN
+                 	STS  @0+@1,R30
+                 	STS  @0+@1+1,R31
+                 	STS  @0+@1+2,R22
+                 	STS  @0+@1+3,R23
+                 	.ENDM
+                 
+                 	.MACRO __PUTBR0MN
+                 	STS  @0+@1,R0
+                 	.ENDM
+                 
+                 	.MACRO __PUTDZ2
+                 	STD  Z+@0,R26
+                 	STD  Z+@0+1,R27
+                 	STD  Z+@0+2,R24
+                 	STD  Z+@0+3,R25
+                 	.ENDM
+                 
+                 	.MACRO __PUTBMRN
+                 	STS  @0+@1,R@2
+                 	.ENDM
+                 
+                 	.MACRO __PUTWMRN
+                 	STS  @0+@1,R@2
+                 	STS  @0+@1+1,R@3
+                 	.ENDM
+                 
+                 	.MACRO __PUTBZR
+                 	STD  Z+@1,R@0
+                 	.ENDM
+                 
+                 	.MACRO __PUTWZR
+                 	STD  Z+@2,R@0
+                 	STD  Z+@2+1,R@1
+                 	.ENDM
+                 
+                 	.MACRO __GETW1R
+                 	MOV  R30,R@0
+                 	MOV  R31,R@1
+                 	.ENDM
+                 
+                 	.MACRO __GETW2R
+                 	MOV  R26,R@0
+                 	MOV  R27,R@1
+                 	.ENDM
+                 
+                 	.MACRO __GETWRN
+                 	LDI  R@0,LOW(@2)
+                 	LDI  R@1,HIGH(@2)
+                 	.ENDM
+                 
+                 	.MACRO __PUTW1R
+                 	MOV  R@0,R30
+                 	MOV  R@1,R31
+                 	.ENDM
+                 
+                 	.MACRO __PUTW2R
+                 	MOV  R@0,R26
+                 	MOV  R@1,R27
+                 	.ENDM
+                 
+                 	.MACRO __ADDWRN
+                 	SUBI R@0,LOW(-@2)
+                 	SBCI R@1,HIGH(-@2)
+                 	.ENDM
+                 
+                 	.MACRO __ADDWRR
+                 	ADD  R@0,R@2
+                 	ADC  R@1,R@3
+                 	.ENDM
+                 
+                 	.MACRO __SUBWRN
+                 	SUBI R@0,LOW(@2)
+                 	SBCI R@1,HIGH(@2)
+                 	.ENDM
+                 
+                 	.MACRO __SUBWRR
+                 	SUB  R@0,R@2
+                 	SBC  R@1,R@3
+                 	.ENDM
+                 
+                 	.MACRO __ANDWRN
+                 	ANDI R@0,LOW(@2)
+                 	ANDI R@1,HIGH(@2)
+                 	.ENDM
+                 
+                 	.MACRO __ANDWRR
+                 	AND  R@0,R@2
+                 	AND  R@1,R@3
+                 	.ENDM
+                 
+                 	.MACRO __ORWRN
+                 	ORI  R@0,LOW(@2)
+                 	ORI  R@1,HIGH(@2)
+                 	.ENDM
+                 
+                 	.MACRO __ORWRR
+                 	OR   R@0,R@2
+                 	OR   R@1,R@3
+                 	.ENDM
+                 
+                 	.MACRO __EORWRR
+                 	EOR  R@0,R@2
+                 	EOR  R@1,R@3
+                 	.ENDM
+                 
+                 	.MACRO __GETWRS
+                 	LDD  R@0,Y+@2
+                 	LDD  R@1,Y+@2+1
+                 	.ENDM
+                 
+                 	.MACRO __PUTWSR
+                 	STD  Y+@2,R@0
+                 	STD  Y+@2+1,R@1
+                 	.ENDM
+                 
+                 	.MACRO __MOVEWRR
+                 	MOV  R@0,R@2
+                 	MOV  R@1,R@3
+                 	.ENDM
+                 
+                 	.MACRO __INWR
+                 	IN   R@0,@2
+                 	IN   R@1,@2+1
+                 	.ENDM
+                 
+                 	.MACRO __OUTWR
+                 	OUT  @2+1,R@1
+                 	OUT  @2,R@0
+                 	.ENDM
+                 
+                 	.MACRO __CALL1MN
+                 	LDS  R30,@0+@1
+                 	LDS  R31,@0+@1+1
+                 	ICALL
+                 	.ENDM
+                 
+                 	.MACRO __CALL1FN
+                 	LDI  R30,LOW(2*@0+@1)
+                 	LDI  R31,HIGH(2*@0+@1)
+                 	CALL __GETW1PF
+                 	ICALL
+                 	.ENDM
+                 
+                 	.MACRO __CALL2EN
+                 	LDI  R26,LOW(@0+@1)
+                 	LDI  R27,HIGH(@0+@1)
+                 	CALL __EEPROMRDW
+                 	ICALL
+                 	.ENDM
+                 
+                 	.MACRO __GETW1STACK
+                 	IN   R26,SPL
+                 	IN   R27,SPH
+                 	ADIW R26,@0+1
+                 	LD   R30,X+
+                 	LD   R31,X
+                 	.ENDM
+                 
+                 	.MACRO __NBST
+                 	BST  R@0,@1
+                 	IN   R30,SREG
+                 	LDI  R31,0x40
+                 	EOR  R30,R31
+                 	OUT  SREG,R30
+                 	.ENDM
+                 
+                 
+                 	.MACRO __PUTB1SN
+                 	LDD  R26,Y+@0
+                 	LDD  R27,Y+@0+1
+                 	SUBI R26,LOW(-@1)
+                 	SBCI R27,HIGH(-@1)
+                 	ST   X,R30
+                 	.ENDM
+                 
+                 	.MACRO __PUTW1SN
+                 	LDD  R26,Y+@0
+                 	LDD  R27,Y+@0+1
+                 	SUBI R26,LOW(-@1)
+                 	SBCI R27,HIGH(-@1)
+                 	ST   X+,R30
+                 	ST   X,R31
+                 	.ENDM
+                 
+                 	.MACRO __PUTD1SN
+                 	LDD  R26,Y+@0
+                 	LDD  R27,Y+@0+1
+                 	SUBI R26,LOW(-@1)
+                 	SBCI R27,HIGH(-@1)
+                 	CALL __PUTDP1
+                 	.ENDM
+                 
+                 	.MACRO __PUTB1SNS
+                 	LDD  R26,Y+@0
+                 	LDD  R27,Y+@0+1
+                 	ADIW R26,@1
+                 	ST   X,R30
+                 	.ENDM
+                 
+                 	.MACRO __PUTW1SNS
+                 	LDD  R26,Y+@0
+                 	LDD  R27,Y+@0+1
+                 	ADIW R26,@1
+                 	ST   X+,R30
+                 	ST   X,R31
+                 	.ENDM
+                 
+                 	.MACRO __PUTD1SNS
+                 	LDD  R26,Y+@0
+                 	LDD  R27,Y+@0+1
+                 	ADIW R26,@1
+                 	CALL __PUTDP1
+                 	.ENDM
+                 
+                 	.MACRO __PUTB1PMN
+                 	LDS  R26,@0
+                 	LDS  R27,@0+1
+                 	SUBI R26,LOW(-@1)
+                 	SBCI R27,HIGH(-@1)
+                 	ST   X,R30
+                 	.ENDM
+                 
+                 	.MACRO __PUTW1PMN
+                 	LDS  R26,@0
+                 	LDS  R27,@0+1
+                 	SUBI R26,LOW(-@1)
+                 	SBCI R27,HIGH(-@1)
+                 	ST   X+,R30
+                 	ST   X,R31
+                 	.ENDM
+                 
+                 	.MACRO __PUTD1PMN
+                 	LDS  R26,@0
+                 	LDS  R27,@0+1
+                 	SUBI R26,LOW(-@1)
+                 	SBCI R27,HIGH(-@1)
+                 	CALL __PUTDP1
+                 	.ENDM
+                 
+                 	.MACRO __PUTB1PMNS
+                 	LDS  R26,@0
+                 	LDS  R27,@0+1
+                 	ADIW R26,@1
+                 	ST   X,R30
+                 	.ENDM
+                 
+                 	.MACRO __PUTW1PMNS
+                 	LDS  R26,@0
+                 	LDS  R27,@0+1
+                 	ADIW R26,@1
+                 	ST   X+,R30
+                 	ST   X,R31
+                 	.ENDM
+                 
+                 	.MACRO __PUTD1PMNS
+                 	LDS  R26,@0
+                 	LDS  R27,@0+1
+                 	ADIW R26,@1
+                 	CALL __PUTDP1
+                 	.ENDM
+                 
+                 	.MACRO __PUTB1RN
+                 	MOVW R26,R@0
+                 	SUBI R26,LOW(-@1)
+                 	SBCI R27,HIGH(-@1)
+                 	ST   X,R30
+                 	.ENDM
+                 
+                 	.MACRO __PUTW1RN
+                 	MOVW R26,R@0
+                 	SUBI R26,LOW(-@1)
+                 	SBCI R27,HIGH(-@1)
+                 	ST   X+,R30
+                 	ST   X,R31
+                 	.ENDM
+                 
+                 	.MACRO __PUTD1RN
+                 	MOVW R26,R@0
+                 	SUBI R26,LOW(-@1)
+                 	SBCI R27,HIGH(-@1)
+                 	CALL __PUTDP1
+                 	.ENDM
+                 
+                 	.MACRO __PUTB1RNS
+                 	MOVW R26,R@0
+                 	ADIW R26,@1
+                 	ST   X,R30
+                 	.ENDM
+                 
+                 	.MACRO __PUTW1RNS
+                 	MOVW R26,R@0
+                 	ADIW R26,@1
+                 	ST   X+,R30
+                 	ST   X,R31
+                 	.ENDM
+                 
+                 	.MACRO __PUTD1RNS
+                 	MOVW R26,R@0
+                 	ADIW R26,@1
+                 	CALL __PUTDP1
+                 	.ENDM
+                 
+                 	.MACRO __PUTB1RON
+                 	MOV  R26,R@0
+                 	MOV  R27,R@1
+                 	SUBI R26,LOW(-@2)
+                 	SBCI R27,HIGH(-@2)
+                 	ST   X,R30
+                 	.ENDM
+                 
+                 	.MACRO __PUTW1RON
+                 	MOV  R26,R@0
+                 	MOV  R27,R@1
+                 	SUBI R26,LOW(-@2)
+                 	SBCI R27,HIGH(-@2)
+                 	ST   X+,R30
+                 	ST   X,R31
+                 	.ENDM
+                 
+                 	.MACRO __PUTD1RON
+                 	MOV  R26,R@0
+                 	MOV  R27,R@1
+                 	SUBI R26,LOW(-@2)
+                 	SBCI R27,HIGH(-@2)
+                 	CALL __PUTDP1
+                 	.ENDM
+                 
+                 	.MACRO __PUTB1RONS
+                 	MOV  R26,R@0
+                 	MOV  R27,R@1
+                 	ADIW R26,@2
+                 	ST   X,R30
+                 	.ENDM
+                 
+                 	.MACRO __PUTW1RONS
+                 	MOV  R26,R@0
+                 	MOV  R27,R@1
+                 	ADIW R26,@2
+                 	ST   X+,R30
+                 	ST   X,R31
+                 	.ENDM
+                 
+                 	.MACRO __PUTD1RONS
+                 	MOV  R26,R@0
+                 	MOV  R27,R@1
+                 	ADIW R26,@2
+                 	CALL __PUTDP1
+                 	.ENDM
+                 
+                 
+                 	.MACRO __GETB1SX
+                 	MOVW R30,R28
+                 	SUBI R30,LOW(-@0)
+                 	SBCI R31,HIGH(-@0)
+                 	LD   R30,Z
+                 	.ENDM
+                 
+                 	.MACRO __GETB1HSX
+                 	MOVW R30,R28
+                 	SUBI R30,LOW(-@0)
+                 	SBCI R31,HIGH(-@0)
+                 	LD   R31,Z
+                 	.ENDM
+                 
+                 	.MACRO __GETW1SX
+                 	MOVW R30,R28
+                 	SUBI R30,LOW(-@0)
+                 	SBCI R31,HIGH(-@0)
+                 	LD   R0,Z+
+                 	LD   R31,Z
+                 	MOV  R30,R0
+                 	.ENDM
+                 
+                 	.MACRO __GETD1SX
+                 	MOVW R30,R28
+                 	SUBI R30,LOW(-@0)
+                 	SBCI R31,HIGH(-@0)
+                 	LD   R0,Z+
+                 	LD   R1,Z+
+                 	LD   R22,Z+
+                 	LD   R23,Z
+                 	MOVW R30,R0
+                 	.ENDM
+                 
+                 	.MACRO __GETB2SX
+                 	MOVW R26,R28
+                 	SUBI R26,LOW(-@0)
+                 	SBCI R27,HIGH(-@0)
+                 	LD   R26,X
+                 	.ENDM
+                 
+                 	.MACRO __GETW2SX
+                 	MOVW R26,R28
+                 	SUBI R26,LOW(-@0)
+                 	SBCI R27,HIGH(-@0)
+                 	LD   R0,X+
+                 	LD   R27,X
+                 	MOV  R26,R0
+                 	.ENDM
+                 
+                 	.MACRO __GETD2SX
+                 	MOVW R26,R28
+                 	SUBI R26,LOW(-@0)
+                 	SBCI R27,HIGH(-@0)
+                 	LD   R0,X+
+                 	LD   R1,X+
+                 	LD   R24,X+
+                 	LD   R25,X
+                 	MOVW R26,R0
+                 	.ENDM
+                 
+                 	.MACRO __GETBRSX
+                 	MOVW R30,R28
+                 	SUBI R30,LOW(-@1)
+                 	SBCI R31,HIGH(-@1)
+                 	LD   R@0,Z
+                 	.ENDM
+                 
+                 	.MACRO __GETWRSX
+                 	MOVW R30,R28
+                 	SUBI R30,LOW(-@2)
+                 	SBCI R31,HIGH(-@2)
+                 	LD   R@0,Z+
+                 	LD   R@1,Z
+                 	.ENDM
+                 
+                 	.MACRO __LSLW8SX
+                 	MOVW R30,R28
+                 	SUBI R30,LOW(-@0)
+                 	SBCI R31,HIGH(-@0)
+                 	LD   R31,Z
+                 	CLR  R30
+                 	.ENDM
+                 
+                 	.MACRO __PUTB1SX
+                 	MOVW R26,R28
+                 	SUBI R26,LOW(-@0)
+                 	SBCI R27,HIGH(-@0)
+                 	ST   X,R30
+                 	.ENDM
+                 
+                 	.MACRO __PUTW1SX
+                 	MOVW R26,R28
+                 	SUBI R26,LOW(-@0)
+                 	SBCI R27,HIGH(-@0)
+                 	ST   X+,R30
+                 	ST   X,R31
+                 	.ENDM
+                 
+                 	.MACRO __PUTD1SX
+                 	MOVW R26,R28
+                 	SUBI R26,LOW(-@0)
+                 	SBCI R27,HIGH(-@0)
+                 	ST   X+,R30
+                 	ST   X+,R31
+                 	ST   X+,R22
+                 	ST   X,R23
+                 	.ENDM
+                 
+                 	.MACRO __CLRW1SX
+                 	MOVW R30,R28
+                 	SUBI R30,LOW(-@0)
+                 	SBCI R31,HIGH(-@0)
+                 	CLR  R0
+                 	ST   Z+,R0
+                 	ST   Z,R0
+                 	.ENDM
+                 
+                 	.MACRO __CLRD1SX
+                 	MOVW R30,R28
+                 	SUBI R30,LOW(-@0)
+                 	SBCI R31,HIGH(-@0)
+                 	CLR  R0
+                 	ST   Z+,R0
+                 	ST   Z+,R0
+                 	ST   Z+,R0
+                 	ST   Z,R0
+                 	.ENDM
+                 
+                 	.MACRO __PUTB2SX
+                 	MOVW R30,R28
+                 	SUBI R30,LOW(-@0)
+                 	SBCI R31,HIGH(-@0)
+                 	ST   Z,R26
+                 	.ENDM
+                 
+                 	.MACRO __PUTW2SX
+                 	MOVW R30,R28
+                 	SUBI R30,LOW(-@0)
+                 	SBCI R31,HIGH(-@0)
+                 	ST   Z+,R26
+                 	ST   Z,R27
+                 	.ENDM
+                 
+                 	.MACRO __PUTD2SX
+                 	MOVW R30,R28
+                 	SUBI R30,LOW(-@0)
+                 	SBCI R31,HIGH(-@0)
+                 	ST   Z+,R26
+                 	ST   Z+,R27
+                 	ST   Z+,R24
+                 	ST   Z,R25
+                 	.ENDM
+                 
+                 	.MACRO __PUTBSRX
+                 	MOVW R30,R28
+                 	SUBI R30,LOW(-@0)
+                 	SBCI R31,HIGH(-@0)
+                 	ST   Z,R@1
+                 	.ENDM
+                 
+                 	.MACRO __PUTWSRX
+                 	MOVW R30,R28
+                 	SUBI R30,LOW(-@2)
+                 	SBCI R31,HIGH(-@2)
+                 	ST   Z+,R@0
+                 	ST   Z,R@1
+                 	.ENDM
+                 
+                 	.MACRO __PUTB1SNX
+                 	MOVW R26,R28
+                 	SUBI R26,LOW(-@0)
+                 	SBCI R27,HIGH(-@0)
+                 	LD   R0,X+
+                 	LD   R27,X
+                 	MOV  R26,R0
+                 	SUBI R26,LOW(-@1)
+                 	SBCI R27,HIGH(-@1)
+                 	ST   X,R30
+                 	.ENDM
+                 
+                 	.MACRO __PUTW1SNX
+                 	MOVW R26,R28
+                 	SUBI R26,LOW(-@0)
+                 	SBCI R27,HIGH(-@0)
+                 	LD   R0,X+
+                 	LD   R27,X
+                 	MOV  R26,R0
+                 	SUBI R26,LOW(-@1)
+                 	SBCI R27,HIGH(-@1)
+                 	ST   X+,R30
+                 	ST   X,R31
+                 	.ENDM
+                 
+                 	.MACRO __PUTD1SNX
+                 	MOVW R26,R28
+                 	SUBI R26,LOW(-@0)
+                 	SBCI R27,HIGH(-@0)
+                 	LD   R0,X+
+                 	LD   R27,X
+                 	MOV  R26,R0
+                 	SUBI R26,LOW(-@1)
+                 	SBCI R27,HIGH(-@1)
+                 	ST   X+,R30
+                 	ST   X+,R31
+                 	ST   X+,R22
+                 	ST   X,R23
+                 	.ENDM
+                 
+                 	.MACRO __MULBRR
+                 	MULS R@0,R@1
+                 	MOVW R30,R0
+                 	.ENDM
+                 
+                 	.MACRO __MULBRRU
+                 	MUL  R@0,R@1
+                 	MOVW R30,R0
+                 	.ENDM
+                 
+                 	.MACRO __MULBRR0
+                 	MULS R@0,R@1
+                 	.ENDM
+                 
+                 	.MACRO __MULBRRU0
+                 	MUL  R@0,R@1
+                 	.ENDM
+                 
+                 	.MACRO __MULBNWRU
+                 	LDI  R26,@2
+                 	MUL  R26,R@0
+                 	MOVW R30,R0
+                 	MUL  R26,R@1
+                 	ADD  R31,R0
+                 	.ENDM
+                 
+                 	.CSEG
+                 	.ORG 0
+                 
+                 	.INCLUDE "main.vec"
+                 
+                 ;INTERRUPT VECTORS
+000000 940c 002b 	JMP  __RESET
+000002 940c 0000 	JMP  0x00
+000004 940c 0000 	JMP  0x00
+000006 940c 0000 	JMP  0x00
+000008 940c 0000 	JMP  0x00
+00000a 940c 0000 	JMP  0x00
+00000c 940c 0000 	JMP  0x00
+00000e 940c 0000 	JMP  0x00
+000010 940c 0000 	JMP  0x00
+000012 940c 009c 	JMP  _Timer0_overlow
+000014 940c 0000 	JMP  0x00
+000016 940c 0996 	JMP  _Uart_rxc
+000018 940c 09aa 	JMP  _Uart_dre
+00001a 940c 0000 	JMP  0x00
+00001c 940c 0000 	JMP  0x00
+00001e 940c 0000 	JMP  0x00
+000020 940c 0000 	JMP  0x00
+000022 940c 0000 	JMP  0x00
+000024 940c 0000 	JMP  0x00
+000026 940c 0000 	JMP  0x00
+000028 940c 0000 	JMP  0x00
+                 
+                 	.INCLUDE "main.inc"
+                 
+                 	.DEF _ucCPU_led_timer=R5
+                 	.DEF _uiCPU_ms_timer=R6
+                 	.DEF _cJTAG_prog_mode=R4
+                 	.DEF _uiTerminal_size_flpage=R8
+                 	.DEF _uiTerminal_size_eepage=R10
+                 	.DEF _ucUART_receive_rdmarker=R13
+                 	.DEF _ucUART_receive_wrmarker=R12
+                 
+                 __GLOBAL_INI_TBL:
+00002a 0000      	.DW  0
+                 _0xAD:
+                 
+                 __RESET:
+00002b 94f8      	CLI
+00002c 27ee      	CLR  R30
+00002d bbec      	OUT  EECR,R30
+                 
+                 ;INTERRUPT VECTORS ARE PLACED
+                 ;AT THE START OF FLASH
+00002e e0f1      	LDI  R31,1
+00002f bffb      	OUT  GICR,R31
+000030 bfeb      	OUT  GICR,R30
+000031 bfe5      	OUT  MCUCR,R30
+                 
+                 ;DISABLE WATCHDOG
+000032 e1f8      	LDI  R31,0x18
+000033 bdf1      	OUT  WDTCR,R31
+000034 bde1      	OUT  WDTCR,R30
+                 
+                 ;CLEAR R2-R14
+000035 e08d      	LDI  R24,13
+000036 e0a2      	LDI  R26,2
+000037 27bb      	CLR  R27
+                 __CLEAR_REG:
+000038 93ed      	ST   X+,R30
+000039 958a      	DEC  R24
+00003a f7e9      	BRNE __CLEAR_REG
+                 
+                 ;CLEAR SRAM
+00003b e080      	LDI  R24,LOW(0x400)
+00003c e094      	LDI  R25,HIGH(0x400)
+00003d e6a0      	LDI  R26,0x60
+                 __CLEAR_SRAM:
+00003e 93ed      	ST   X+,R30
+00003f 9701      	SBIW R24,1
+000040 f7e9      	BRNE __CLEAR_SRAM
+                 
+                 ;GLOBAL VARIABLES INITIALIZATION
+000041 e5e4      	LDI  R30,LOW(__GLOBAL_INI_TBL*2)
+000042 e0f0      	LDI  R31,HIGH(__GLOBAL_INI_TBL*2)
+                 __GLOBAL_INI_NEXT:
+000043 9185      	LPM  R24,Z+
+000044 9195      	LPM  R25,Z+
+000045 9700      	SBIW R24,0
+000046 f061      	BREQ __GLOBAL_INI_END
+000047 91a5      	LPM  R26,Z+
+000048 91b5      	LPM  R27,Z+
+000049 9005      	LPM  R0,Z+
+00004a 9015      	LPM  R1,Z+
+00004b 01bf      	MOVW R22,R30
+00004c 01f0      	MOVW R30,R0
+                 __GLOBAL_INI_LOOP:
+00004d 9005      	LPM  R0,Z+
+00004e 920d      	ST   X+,R0
+00004f 9701      	SBIW R24,1
+000050 f7e1      	BRNE __GLOBAL_INI_LOOP
+000051 01fb      	MOVW R30,R22
+000052 cff0      	RJMP __GLOBAL_INI_NEXT
+                 __GLOBAL_INI_END:
+                 
+                 ;STACK POINTER INITIALIZATION
+000053 e5ef      	LDI  R30,LOW(0x45F)
+000054 bfed      	OUT  SPL,R30
+000055 e0e4      	LDI  R30,HIGH(0x45F)
+000056 bfee      	OUT  SPH,R30
+                 
+                 ;DATA STACK POINTER INITIALIZATION
+000057 e6c0      	LDI  R28,LOW(0x160)
+000058 e0d1      	LDI  R29,HIGH(0x160)
+                 
+000059 940c 0083 	JMP  _main
+                 
+                 	.ESEG
+                 	.ORG 0
+000000 00        	.DB  0 ; FIRST EEPROM LOCATION NOT USED, SEE ATMEL ERRATA SHEETS
+                 
+                 	.DSEG
+                 	.ORG 0x160
+                 ;       1 //----------------------------------------------------------------------------------------------------------------------------
+                 ;       2 //Mick Laboratory, Калуга 2014
+                 ;       3 //main.c  - модуль основных функций
+                 ;       4 //Тип микроконтроллера: atmega16a
+                 ;       5 //Автор: Mick (Тарасов Михаил)
+                 ;       6 //Версия модуля: v1.00 - 13 марта 2014
+                 ;       7 //----------------------------------------------------------------------------------------------------------------------------
+                 ;       8 #include "main.h"
+                 ;       9 	#ifndef __SLEEP_DEFINED__
+                 	#ifndef __SLEEP_DEFINED__
+                 ;      10 	#define __SLEEP_DEFINED__
+                 	#define __SLEEP_DEFINED__
+                 ;      11 	.EQU __se_bit=0x40
+                 	.EQU __se_bit=0x40
+                 ;      12 	.EQU __sm_mask=0xB0
+                 	.EQU __sm_mask=0xB0
+                 ;      13 	.EQU __sm_powerdown=0x20
+                 	.EQU __sm_powerdown=0x20
+                 ;      14 	.EQU __sm_powersave=0x30
+                 	.EQU __sm_powersave=0x30
+                 ;      15 	.EQU __sm_standby=0xA0
+                 	.EQU __sm_standby=0xA0
+                 ;      16 	.EQU __sm_ext_standby=0xB0
+                 	.EQU __sm_ext_standby=0xB0
+                 ;      17 	.EQU __sm_adc_noise_red=0x10
+                 	.EQU __sm_adc_noise_red=0x10
+                 ;      18 	.SET power_ctrl_reg=mcucr
+                 	.SET power_ctrl_reg=mcucr
+                 ;      19 	#endif
+                 	#endif
+                 ;      20 
+                 ;      21 #define TIMER_CLK			140		//7372800 / 256 = 28800 => 256 - 116 = 140
+                 ;      22 
+                 ;      23 //-------------------------------------------------------------
+                 ;      24 //описание:описание переменных контроллера
+                 ;      25 //-------------------------------------------------------------
+                 ;      26  unsigned char ucCPU_led_timer;
+                 ;      27  unsigned int  uiCPU_ms_timer;
+                 ;      28 //-------------------------------------------------------------------------------------------------------------------------
+                 ;      29 // описание:  инициализация оборудования .
+                 ;      30 // параметры:    нет
+                 ;      31 // возвращаемое  значение:  нет
+                 ;      32 //-------------------------------------------------------------------------------------------------------------------------
+                 ;      33 void CPU_init(void)
+                 ;      34 {
+                 
+                 	.CSEG
+                 _CPU_init:
+                 ;      35   PORTA = 0xFF;                                         //порт A на вход
+00005b efef      	LDI  R30,LOW(255)
+00005c bbeb      	OUT  0x1B,R30
+                 ;      36   DDRA  = 0x00;
+00005d e0e0      	LDI  R30,LOW(0)
+00005e bbea      	OUT  0x1A,R30
+                 ;      37 
+                 ;      38   PORTB = 0xFF;                                         //порт B кофигурируем как:
+00005f efef      	LDI  R30,LOW(255)
+000060 bbe8      	OUT  0x18,R30
+                 ;      39   DDRB  = 0xAA;						//TMS,STATUS,TDI,TCK - выходы
+000061 eaea      	LDI  R30,LOW(170)
+000062 bbe7      	OUT  0x17,R30
+                 ;      40 
+                 ;      41   PORTC = 0xFF;                                         //порт C на вход
+000063 efef      	LDI  R30,LOW(255)
+000064 bbe5      	OUT  0x15,R30
+                 ;      42   DDRC  = 0x00;
+000065 e0e0      	LDI  R30,LOW(0)
+000066 bbe4      	OUT  0x14,R30
+                 ;      43 
+                 ;      44   PORTD = 0xF7;                         		//порт D на вход: RXD, CSAVR, DATKK, DATKM,CLKK,CLKM
+000067 efe7      	LDI  R30,LOW(247)
+000068 bbe2      	OUT  0x12,R30
+                 ;      45   DDRD  = 0x09;				                //выход: TXD =1, RES =0
+000069 e0e9      	LDI  R30,LOW(9)
+00006a bbe1      	OUT  0x11,R30
+                 ;      46 
+                 ;      47   ACSR  = 0x80;
+00006b e8e0      	LDI  R30,LOW(128)
+00006c b9e8      	OUT  0x8,R30
+                 ;      48 
+                 ;      49   MCUCR = 0x00;						//запретим внешние прерывания
+00006d e0e0      	LDI  R30,LOW(0)
+00006e bfe5      	OUT  0x35,R30
+                 ;      50   GICR  = 0x00;
+00006f bfeb      	OUT  0x3B,R30
+                 ;      51 
+                 ;      52   TCCR0 = 0x04;						// 8-битный таймер используем CLK/256
+000070 e0e4      	LDI  R30,LOW(4)
+000071 bfe3      	OUT  0x33,R30
+                 ;      53   TCNT0 = TIMER_CLK;					//прерывание по таймеру
+000072 e8ec      	LDI  R30,LOW(140)
+000073 bfe2      	OUT  0x32,R30
+                 ;      54 
+                 ;      55   TIMSK = 0x01;						//внутреннее прерывание от 8 - битного таймера
+000074 e0e1      	LDI  R30,LOW(1)
+000075 bfe9      	OUT  0x39,R30
+                 ;      56   TIFR  = 0x01;						//очистим флаг прерывания от 16 - ти битного таймера
+000076 bfe8      	OUT  0x38,R30
+                 ;      57 
+                 ;      58  }
+000077 9508      	RET
+                 ;      59 //----------------------------------------------------------
+                 ;      60 //описание:     включить/выключить светодиод
+                 ;      61 //параметры:    cState  -   состояние светодиода
+                 ;      62 //возвращаемое  значение:  нет
+                 ;      63 //---------------------------------------------------------
+                 ;      64 void CPU_led_state(char cState)
+                 ;      65 {
+                 _CPU_led_state:
+                 ;      66  if(cState ==0) PORTB = PORTB | 0x08;
+                 ;	cState -> Y+0
+000078 81e8      	LD   R30,Y
+000079 30e0      	CPI  R30,0
+00007a f411      	BRNE _0x3
+00007b 9ac3      	SBI  0x18,3
+                 ;      67  else PORTB = PORTB & 0xF7;
+00007c c001      	RJMP _0x4
+                 _0x3:
+00007d 98c3      	CBI  0x18,3
+                 ;      68  ucCPU_led_timer = 0;
+                 _0x4:
+00007e 2455      	CLR  R5
+                 ;      69 }
+00007f 9621      	ADIW R28,1
+000080 9508      	RET
+                 ;      70 //-------------------------------------------------------------------
+                 ;      71 // описание: прочитать состояние системных тиков
+                 ;      72 // параметры:       нет
+                 ;      73 // возвращаемое  значение:    количество системных тиков
+                 ;      74 //-------------------------------------------------------------------
+                 ;      75 unsigned int CPU_get_timer_ms(void)
+                 ;      76 {
+                 _CPU_get_timer_ms:
+                 ;      77  return uiCPU_ms_timer;
+000081 01f3      	MOVW R30,R6
+000082 9508      	RET
+                 ;      78 }
+                 ;      79 //-----------------------------------------------------------------------------------------------------------------------
+                 ;      80 // описание:  управление основным процессом.
+                 ;      81 // параметры:    нет
+                 ;      82 // возвращаемое  значение:  нет
+                 ;      83 //-------------------------------------------------------------------------------------------------------------------------
+                 ;      84 void main(void)
+                 ;      85 {
+                 _main:
+                 ;      86  DisableInterrupts;					//#asm("CLI")
+000083 94f8      	CLI
+                 ;      87  CPU_init();						// инициализация микроконтроллера
+000084 940e 005b 	CALL _CPU_init
+                 ;      88  uiCPU_ms_timer  = 0;
+000086 2466      	CLR  R6
+000087 2477      	CLR  R7
+                 ;      89  ucCPU_led_timer = 0;
+000088 2455      	CLR  R5
+                 ;      90  JTAG_Init();
+000089 940e 00ae 	CALL _JTAG_Init
+                 ;      91  UART_init();
+00008b 940e 095b 	CALL _UART_init
+                 ;      92  Terminal_init();
+00008d 940e 057c 	CALL _Terminal_init
+                 ;      93  EnableInterrupts;                               	//#asm("SEI")
+00008f 9478      	SEI
+                 ;      94  for(;;)
+                 _0x6:
+                 ;      95   {
+                 ;      96    Terminal_cmd_analyze();
+000090 940e 05dc 	CALL _Terminal_cmd_analyze
+                 ;      97    if(ucCPU_led_timer >= 250)
+000092 efea      	LDI  R30,LOW(250)
+000093 165e      	CP   R5,R30
+000094 f028      	BRLO _0x8
+                 ;      98      {
+                 ;      99       ucCPU_led_timer = 0;
+000095 2455      	CLR  R5
+                 ;     100       PORTB = PORTB ^ 0x08;
+000096 b3e8      	IN   R30,0x18
+000097 e0a8      	LDI  R26,LOW(8)
+000098 27ea      	EOR  R30,R26
+000099 bbe8      	OUT  0x18,R30
+                 ;     101      }
+                 ;     102   }
+                 _0x8:
+00009a cff5      	RJMP _0x6
+                 ;     103 }
+                 _0x9:
+00009b cfff      	RJMP _0x9
+                 ;     104 //------------------------------------------------------------------------------------------------------------------------
+                 ;     105 // описание: обработка прерывания от  8 - битного таймера (через каждые 4,096mc)
+                 ;     106 // параметры:    нет
+                 ;     107 // возвращаемое  значение:  нет
+                 ;     108 //-------------------------------------------------------------------------------------------------------------------------
+                 ;     109 interrupt [TIM0_OVF] void Timer0_overlow(void)
+                 ;     110 {
+                 _Timer0_overlow:
+00009c 93ea      	ST   -Y,R30
+00009d 93fa      	ST   -Y,R31
+00009e b7ef      	IN   R30,SREG
+00009f 93ea      	ST   -Y,R30
+                 ;     111  TIFR = TIFR | 0x01;					//очистим флаг прерывания от 8 - ти битного таймера
+0000a0 b7e8      	IN   R30,0x38
+0000a1 60e1      	ORI  R30,1
+0000a2 bfe8      	OUT  0x38,R30
+                 ;     112  TCNT0 = TIMER_CLK;					//прерывание по таймеру происходит через 4мс
+0000a3 e8ec      	LDI  R30,LOW(140)
+0000a4 bfe2      	OUT  0x32,R30
+                 ;     113  uiCPU_ms_timer = uiCPU_ms_timer + 1;			//увеличиваем счетчик системных тиков
+0000a5 01f3      	MOVW R30,R6
+0000a6 9631      	ADIW R30,1
+0000a7 013f      	MOVW R6,R30
+                 ;     114  ucCPU_led_timer = ucCPU_led_timer +1;
+0000a8 9453      	INC  R5
+                 ;     115 }
+0000a9 91e9      	LD   R30,Y+
+0000aa bfef      	OUT  SREG,R30
+0000ab 91f9      	LD   R31,Y+
+0000ac 91e9      	LD   R30,Y+
+0000ad 9518      	RETI
+                 ;     116 //----------------------------------------------------------------------------------------------------------------------------
+                 ;     117 //Mick Laboratory, Калуга 2014
+                 ;     118 //jtag.c  - модуль функций обработки JTAG команд.
+                 ;     119 //Тип микроконтроллера: atmega16a
+                 ;     120 //Автор: Mick (Тарасов Михаил)
+                 ;     121 //Версия модуля: 1.00 - 13 марта 2014
+                 ;     122 //----------------------------------------------------------------------------------------------------------------------------
+                 ;     123 //Примечание: За основу данного модуля взяты исходники проектов Lavor -> Laurent Saint-Marcel (lstmarcel@yahoo.fr) и
+                 ;     124 //JTAGFlasher безымянного русскоязычного программиста (найдено в просторах интернета)
+                 ;     125 //----------------------------------------------------------------------------------------------------------------------------
+                 ;     126 
+                 ;     127 #include "main.h"
+                 ;     128 	#ifndef __SLEEP_DEFINED__
+                 	#ifndef __SLEEP_DEFINED__
+                 	#endif
+                 ;     139 
+                 ;     140 #define TMS_0 			0
+                 ;     141 #define TMS_1                   1
+                 ;     142 
+                 ;     143 #define TDI_0 			0
+                 ;     144 #define TDI_1 			1
+                 ;     145 
+                 ;     146 #define TMS_PIN      	 	1
+                 ;     147 #define TMS_MASK      	 	0x02
+                 ;     148 #define TDI_PIN      	 	5
+                 ;     149 #define TDI_MASK      	 	0x20
+                 ;     150 #define TDO_PIN      	 	6
+                 ;     151 #define TDO_MASK      	 	0x40
+                 ;     152 #define TCLK_PIN     		7
+                 ;     153 #define TCLK_MASK     		0x80
+                 ;     154 
+                 ;     155 //----------------------------------------------------------------------------------------------------------------------
+                 ;     156 //описание:описание переменных контроллера
+                 ;     157 //-----------------------------------------------------------------------------------------------------------------------
+                 ;     158  char cJTAG_prog_mode;					//флаг режима программирования
+                 ;     159 //-------------------------------------------------------------------------------------------------------------------------
+                 ;     160 // описание: Инициализация JTAG
+                 ;     161 // параметры:    нет
+                 ;     162 // возвращаемое  значение:  нет
+                 ;     163 //-------------------------------------------------------------------------------------------------------------------------
+                 ;     164 void JTAG_Init(void)
+                 ;     165 {
+                 _JTAG_Init:
+                 ;     166   PORTB = 0xFF;
+0000ae efef      	LDI  R30,LOW(255)
+0000af bbe8      	OUT  0x18,R30
+                 ;     167   DDRB = DDRB & ~TDO_MASK;
+0000b0 98be      	CBI  0x17,6
+                 ;     168   DDRB = DDRB | (TMS_MASK | TDI_MASK | TCLK_MASK) ;
+0000b1 b3e7      	IN   R30,0x17
+0000b2 6ae2      	ORI  R30,LOW(0xA2)
+0000b3 bbe7      	OUT  0x17,R30
+                 ;     169   cJTAG_prog_mode = 0;
+0000b4 2444      	CLR  R4
+                 ;     170 }
+0000b5 9508      	RET
+                 ;     171 //-------------------------------------------------------------------------------------------------------------------------
+                 ;     172 // описание: Формирование TAP последовательности JTAG
+                 ;     173 // параметры:    нет
+                 ;     174 // возвращаемое  значение:  нет
+                 ;     175 //-------------------------------------------------------------------------------------------------------------------------
+                 ;     176 void JTAG_Tap(unsigned long ulState, unsigned char ucCount)
+                 ;     177  {
+                 _JTAG_Tap:
+                 ;     178   unsigned char i;
+                 ;     179   PORTB = PORTB & ~TCLK_MASK;
+0000b6 931a      	ST   -Y,R17
+                 ;	ulState -> Y+2
+                 ;	ucCount -> Y+1
+                 ;	i -> R17
+0000b7 98c7      	CBI  0x18,7
+                 ;     180   PORTB = PORTB & ~TMS_MASK;
+0000b8 98c1      	CBI  0x18,1
+                 ;     181   for(i =0; i < ucCount; i++)
+0000b9 e010      	LDI  R17,LOW(0)
+                 _0xB:
+0000ba 81e9      	LDD  R30,Y+1
+0000bb 171e      	CP   R17,R30
+0000bc f4a0      	BRSH _0xC
+                 ;     182    {
+                 ;     183     if((ulState & 0x01)!= 0) PORTB = PORTB | TMS_MASK;
+0000bd 81ea      	LDD  R30,Y+2
+0000be 70e1      	ANDI R30,LOW(0x1)
+0000bf f011      	BREQ _0xD
+0000c0 9ac1      	SBI  0x18,1
+                 ;     184     else PORTB = PORTB & ~TMS_MASK;
+0000c1 c001      	RJMP _0xE
+                 _0xD:
+0000c2 98c1      	CBI  0x18,1
+                 ;     185     ulState = ulState >> 1;
+                 _0xE:
+0000c3 81ea
+0000c4 81fb
+0000c5 816c
+0000c6 817d      	__GETD1S 2
+0000c7 940e 09ed 	CALL __LSRD1
+0000c9 83ea
+0000ca 83fb
+0000cb 836c
+0000cc 837d      	__PUTD1S 2
+                 ;     186     PORTB = PORTB | TCLK_MASK;
+0000cd 9ac7      	SBI  0x18,7
+                 ;     187     PORTB = PORTB & ~TCLK_MASK;
+0000ce 98c7      	CBI  0x18,7
+                 ;     188    }
+0000cf 5f1f      	SUBI R17,-1
+0000d0 cfe9      	RJMP _0xB
+                 _0xC:
+                 ;     189  }
+0000d1 8118      	LDD  R17,Y+0
+0000d2 9626      	ADIW R28,6
+0000d3 9508      	RET
+                 ;     190 //-------------------------------------------------------------------------------------------------------------------------
+                 ;     191 // описание: Отправка данных в JTAG
+                 ;     192 // параметры:    нет
+                 ;     193 // возвращаемое  значение:  нет
+                 ;     194 //-------------------------------------------------------------------------------------------------------------------------
+                 ;     195 unsigned long JTAG_ShiftInstruction(unsigned long ulInstruction, unsigned char ucCount)
+                 ;     196  {
+                 _JTAG_ShiftInstruction:
+                 ;     197   unsigned char i;
+                 ;     198   unsigned long ulResult;
+                 ;     199   ulResult =0;
+0000d4 9724      	SBIW R28,4
+0000d5 931a      	ST   -Y,R17
+                 ;	ulInstruction -> Y+6
+                 ;	ucCount -> Y+5
+                 ;	i -> R17
+                 ;	ulResult -> Y+1
+0000d6 e0e0
+0000d7 83e9
+0000d8 83ea
+0000d9 83eb
+0000da 83ec      	__CLRD1S 1
+                 ;     200   PORTB = PORTB & ~TMS_MASK;
+0000db 98c1      	CBI  0x18,1
+                 ;     201   PORTB = PORTB & ~TCLK_MASK;
+0000dc 98c7      	CBI  0x18,7
+                 ;     202   for( i =0; i < ucCount; i++)
+0000dd e010      	LDI  R17,LOW(0)
+                 _0x10:
+0000de 81ed      	LDD  R30,Y+5
+0000df 171e      	CP   R17,R30
+0000e0 f540      	BRSH _0x11
+                 ;     203    {
+                 ;     204     if((ulInstruction & 0x01) != 0) PORTB = PORTB | TDI_MASK;
+0000e1 81ee      	LDD  R30,Y+6
+0000e2 70e1      	ANDI R30,LOW(0x1)
+0000e3 f011      	BREQ _0x12
+0000e4 9ac5      	SBI  0x18,5
+                 ;     205     else PORTB = PORTB & ~TDI_MASK;
+0000e5 c001      	RJMP _0x13
+                 _0x12:
+0000e6 98c5      	CBI  0x18,5
+                 ;     206     ulInstruction = ulInstruction >>1;
+                 _0x13:
+0000e7 81ee
+0000e8 81ff
+0000e9 8568
+0000ea 8579      	__GETD1S 6
+0000eb 940e 09ed 	CALL __LSRD1
+0000ed 83ee
+0000ee 83ff
+0000ef 8768
+0000f0 8779      	__PUTD1S 6
+                 ;     207     if(i == (ucCount-1)) PORTB = PORTB | TMS_MASK; // последний бит JTAG инструкции: подготовим уход из Shift-IR
+0000f1 81ed      	LDD  R30,Y+5
+0000f2 50e1      	SUBI R30,LOW(1)
+0000f3 17e1      	CP   R30,R17
+0000f4 f409      	BRNE _0x14
+0000f5 9ac1      	SBI  0x18,1
+                 ;     208     PORTB = PORTB | TCLK_MASK;
+                 _0x14:
+0000f6 9ac7      	SBI  0x18,7
+                 ;     209     if ((PINB & TDO_MASK) != 0) ulResult = ulResult | 0x80000000;
+0000f7 9bb6      	SBIS 0x16,6
+0000f8 c003      	RJMP _0x15
+0000f9 81ec      	LDD  R30,Y+4
+0000fa 68e0      	ORI  R30,0x80
+0000fb 83ec      	STD  Y+4,R30
+                 ;     210     ulResult = ulResult >>1;
+                 _0x15:
+0000fc 81e9
+0000fd 81fa
+0000fe 816b
+0000ff 817c      	__GETD1S 1
+000100 940e 09ed 	CALL __LSRD1
+000102 83e9
+000103 83fa
+000104 836b
+000105 837c      	__PUTD1S 1
+                 ;     211     PORTB = PORTB & ~TCLK_MASK;
+000106 98c7      	CBI  0x18,7
+                 ;     212    }
+000107 5f1f      	SUBI R17,-1
+000108 cfd5      	RJMP _0x10
+                 _0x11:
+                 ;     213   return ulResult;
+000109 81e9
+00010a 81fa
+00010b 816b
+00010c 817c      	__GETD1S 1
+00010d 8118      	LDD  R17,Y+0
+00010e 962a      	ADIW R28,10
+00010f 9508      	RET
+                 ;     214  }
+                 ;     215 //-------------------------------------------------------------------------------------------------------------------------
+                 ;     216 // описание: Вывод команды в JTAG интерфейс
+                 ;     217 // параметры:    нет
+                 ;     218 // возвращаемое  значение:  uiResult - ответ устройства
+                 ;     219 //-------------------------------------------------------------------------------------------------------------------------
+                 ;     220 unsigned int JTAG_WriteProgCmd(unsigned char ucCmdH, unsigned char ucCmdL)
+                 ;     221 {
+                 _JTAG_WriteProgCmd:
+                 ;     222  unsigned int uiResult;
+                 ;     223  unsigned int uiCommand;
+                 ;     224  unsigned long ulData;
+                 ;     225 
+                 ;     226  uiCommand = ucCmdH;
+000110 9724      	SBIW R28,4
+000111 940e 09fe 	CALL __SAVELOCR4
+                 ;	ucCmdH -> Y+9
+                 ;	ucCmdL -> Y+8
+                 ;	uiResult -> R16,R17
+                 ;	uiCommand -> R18,R19
+                 ;	ulData -> Y+4
+000113 8529      	LDD  R18,Y+9
+000114 2733      	CLR  R19
+                 ;     227  uiCommand = (uiCommand << 8) | ucCmdL;
+000115 2ff2      	MOV  R31,R18
+000116 e0e0      	LDI  R30,LOW(0)
+000117 01df      	MOVW R26,R30
+000118 85e8      	LDD  R30,Y+8
+000119 e0f0      	LDI  R31,0
+00011a 2bea      	OR   R30,R26
+00011b 2bfb      	OR   R31,R27
+00011c 019f      	MOVW R18,R30
+                 ;     228 
+                 ;     229  JTAG_Tap(0x0D,6);
+00011d e0ed
+00011e e0f0
+00011f e060
+000120 e070      	__GETD1N 0xD
+000121 940e 09f7 	CALL __PUTPARD1
+000123 e0e6      	LDI  R30,LOW(6)
+000124 93ea      	ST   -Y,R30
+000125 940e 00b6 	CALL _JTAG_Tap
+                 ;     230  JTAG_ShiftInstruction(0x05,4);
+000127 e0e5
+000128 e0f0
+000129 e060
+00012a e070      	__GETD1N 0x5
+00012b 940e 09f7 	CALL __PUTPARD1
+00012d e0e4      	LDI  R30,LOW(4)
+00012e 93ea      	ST   -Y,R30
+00012f 940e 00d4 	CALL _JTAG_ShiftInstruction
+                 ;     231 
+                 ;     232  JTAG_Tap(0x3,4);
+000131 e0e3
+000132 e0f0
+000133 e060
+000134 e070      	__GETD1N 0x3
+000135 940e 09f7 	CALL __PUTPARD1
+000137 e0e4      	LDI  R30,LOW(4)
+000138 93ea      	ST   -Y,R30
+000139 940e 00b6 	CALL _JTAG_Tap
+                 ;     233  ulData = JTAG_ShiftInstruction(uiCommand, 15);
+00013b 01f9      	MOVW R30,R18
+00013c 2766      	CLR  R22
+00013d 2777      	CLR  R23
+00013e 940e 09f7 	CALL __PUTPARD1
+000140 e0ef      	LDI  R30,LOW(15)
+000141 93ea      	ST   -Y,R30
+000142 940e 00d4 	CALL _JTAG_ShiftInstruction
+000144 83ec
+000145 83fd
+000146 836e
+000147 837f      	__PUTD1S 4
+                 ;     234  uiResult = ulData >>16;
+000148 940e 09f2 	CALL __LSRD16
+00014a 018f      	MOVW R16,R30
+                 ;     235  return uiResult;
+00014b 01f8      	MOVW R30,R16
+00014c 940e 0a05 	CALL __LOADLOCR4
+00014e 962a      	ADIW R28,10
+00014f 9508      	RET
+                 ;     236 }
+                 ;     237 //-------------------------------------------------------------------------------------------------------------------------
+                 ;     238 // описание: Вход в режим программирования
+                 ;     239 // параметры:    нет
+                 ;     240 // возвращаемое  значение:  нет
+                 ;     241 //-------------------------------------------------------------------------------------------------------------------------
+                 ;     242 void JTAG_EnteringProgramming(void)
+                 ;     243 {
+                 _JTAG_EnteringProgramming:
+                 ;     244   JTAG_Tap(0xFFFF,16);
+000150 efef
+000151 efff
+000152 e060
+000153 e070      	__GETD1N 0xFFFF
+000154 940e 09f7 	CALL __PUTPARD1
+000156 e1e0      	LDI  R30,LOW(16)
+000157 93ea      	ST   -Y,R30
+000158 940e 00b6 	CALL _JTAG_Tap
+                 ;     245   JTAG_Tap(0x0000,16);
+00015a e0e0
+00015b e0f0
+00015c e060
+00015d e070      	__GETD1N 0x0
+00015e 940e 09f7 	CALL __PUTPARD1
+000160 e1e0      	LDI  R30,LOW(16)
+000161 93ea      	ST   -Y,R30
+000162 940e 00b6 	CALL _JTAG_Tap
+                 ;     246 
+                 ;     247   JTAG_Tap(0x3,4);
+000164 e0e3
+000165 e0f0
+000166 e060
+000167 e070      	__GETD1N 0x3
+000168 940e 09f7 	CALL __PUTPARD1
+00016a e0e4      	LDI  R30,LOW(4)
+00016b 93ea      	ST   -Y,R30
+00016c 940e 00b6 	CALL _JTAG_Tap
+                 ;     248   JTAG_ShiftInstruction(0xC,4);
+00016e e0ec
+00016f e0f0
+000170 e060
+000171 e070      	__GETD1N 0xC
+000172 940e 09f7 	CALL __PUTPARD1
+000174 e0e4      	LDI  R30,LOW(4)
+000175 93ea      	ST   -Y,R30
+000176 940e 00d4 	CALL _JTAG_ShiftInstruction
+                 ;     249   JTAG_Tap(0x3,4);
+000178 e0e3
+000179 e0f0
+00017a e060
+00017b e070      	__GETD1N 0x3
+00017c 940e 09f7 	CALL __PUTPARD1
+00017e e0e4      	LDI  R30,LOW(4)
+00017f 93ea      	ST   -Y,R30
+000180 940e 00b6 	CALL _JTAG_Tap
+                 ;     250   JTAG_ShiftInstruction(0x01,1);
+000182 e0e1
+000183 e0f0
+000184 e060
+000185 e070      	__GETD1N 0x1
+000186 940e 09f7 	CALL __PUTPARD1
+000188 93ea      	ST   -Y,R30
+000189 940e 00d4 	CALL _JTAG_ShiftInstruction
+                 ;     251 
+                 ;     252   JTAG_Tap(0x0D,6);
+00018b e0ed
+00018c e0f0
+00018d e060
+00018e e070      	__GETD1N 0xD
+00018f 940e 09f7 	CALL __PUTPARD1
+000191 e0e6      	LDI  R30,LOW(6)
+000192 93ea      	ST   -Y,R30
+000193 940e 00b6 	CALL _JTAG_Tap
+                 ;     253   JTAG_ShiftInstruction(0x4,4);
+000195 e0e4
+000196 e0f0
+000197 e060
+000198 e070      	__GETD1N 0x4
+000199 940e 09f7 	CALL __PUTPARD1
+00019b 93ea      	ST   -Y,R30
+00019c 940e 00d4 	CALL _JTAG_ShiftInstruction
+                 ;     254   JTAG_Tap(0x3,4);
+00019e e0e3
+00019f e0f0
+0001a0 e060
+0001a1 e070      	__GETD1N 0x3
+0001a2 940e 09f7 	CALL __PUTPARD1
+0001a4 e0e4      	LDI  R30,LOW(4)
+0001a5 93ea      	ST   -Y,R30
+0001a6 940e 00b6 	CALL _JTAG_Tap
+                 ;     255   JTAG_ShiftInstruction(0xA370,16);
+0001a8 e7e0
+0001a9 eaf3
+0001aa e060
+0001ab e070      	__GETD1N 0xA370
+0001ac 940e 09f7 	CALL __PUTPARD1
+0001ae e1e0      	LDI  R30,LOW(16)
+0001af 93ea      	ST   -Y,R30
+0001b0 940e 00d4 	CALL _JTAG_ShiftInstruction
+                 ;     256 }
+0001b2 9508      	RET
+                 ;     257 //-------------------------------------------------------------------------------------------------------------------------
+                 ;     258 // описание: Выход из режима программирования
+                 ;     259 // параметры:    нет
+                 ;     260 // возвращаемое  значение:  нет
+                 ;     261 //-------------------------------------------------------------------------------------------------------------------------
+                 ;     262 void JTAG_LeavingProgramming(void)
+                 ;     263 {
+                 _JTAG_LeavingProgramming:
+                 ;     264  JTAG_WriteProgCmd(0x23, 0x00);
+0001b3 e2e3      	LDI  R30,LOW(35)
+0001b4 93ea      	ST   -Y,R30
+0001b5 e0e0      	LDI  R30,LOW(0)
+0001b6 93ea      	ST   -Y,R30
+0001b7 940e 0110 	CALL _JTAG_WriteProgCmd
+                 ;     265  JTAG_WriteProgCmd(0x33, 0x00);
+0001b9 e3e3      	LDI  R30,LOW(51)
+0001ba 93ea      	ST   -Y,R30
+0001bb e0e0      	LDI  R30,LOW(0)
+0001bc 93ea      	ST   -Y,R30
+0001bd 940e 0110 	CALL _JTAG_WriteProgCmd
+                 ;     266 
+                 ;     267  JTAG_Tap(0x0D,6);
+0001bf e0ed
+0001c0 e0f0
+0001c1 e060
+0001c2 e070      	__GETD1N 0xD
+0001c3 940e 09f7 	CALL __PUTPARD1
+0001c5 e0e6      	LDI  R30,LOW(6)
+0001c6 93ea      	ST   -Y,R30
+0001c7 940e 00b6 	CALL _JTAG_Tap
+                 ;     268  JTAG_ShiftInstruction(0x04,4);
+0001c9 e0e4
+0001ca e0f0
+0001cb e060
+0001cc e070      	__GETD1N 0x4
+0001cd 940e 09f7 	CALL __PUTPARD1
+0001cf 93ea      	ST   -Y,R30
+0001d0 940e 00d4 	CALL _JTAG_ShiftInstruction
+                 ;     269  JTAG_Tap(0x3,4);
+0001d2 e0e3
+0001d3 e0f0
+0001d4 e060
+0001d5 e070      	__GETD1N 0x3
+0001d6 940e 09f7 	CALL __PUTPARD1
+0001d8 e0e4      	LDI  R30,LOW(4)
+0001d9 93ea      	ST   -Y,R30
+0001da 940e 00b6 	CALL _JTAG_Tap
+                 ;     270  JTAG_ShiftInstruction(0x0000,15);
+0001dc e0e0
+0001dd e0f0
+0001de e060
+0001df e070      	__GETD1N 0x0
+0001e0 940e 09f7 	CALL __PUTPARD1
+0001e2 e0ef      	LDI  R30,LOW(15)
+0001e3 93ea      	ST   -Y,R30
+0001e4 940e 00d4 	CALL _JTAG_ShiftInstruction
+                 ;     271 
+                 ;     272  JTAG_Tap(0x0D,6);
+0001e6 e0ed
+0001e7 e0f0
+0001e8 e060
+0001e9 e070      	__GETD1N 0xD
+0001ea 940e 09f7 	CALL __PUTPARD1
+0001ec e0e6      	LDI  R30,LOW(6)
+0001ed 93ea      	ST   -Y,R30
+0001ee 940e 00b6 	CALL _JTAG_Tap
+                 ;     273  JTAG_ShiftInstruction(0xC,4);
+0001f0 e0ec
+0001f1 e0f0
+0001f2 e060
+0001f3 e070      	__GETD1N 0xC
+0001f4 940e 09f7 	CALL __PUTPARD1
+0001f6 e0e4      	LDI  R30,LOW(4)
+0001f7 93ea      	ST   -Y,R30
+0001f8 940e 00d4 	CALL _JTAG_ShiftInstruction
+                 ;     274  JTAG_Tap(0x3,4);
+0001fa e0e3
+0001fb e0f0
+0001fc e060
+0001fd e070      	__GETD1N 0x3
+0001fe 940e 09f7 	CALL __PUTPARD1
+000200 e0e4      	LDI  R30,LOW(4)
+000201 93ea      	ST   -Y,R30
+000202 940e 00b6 	CALL _JTAG_Tap
+                 ;     275  JTAG_ShiftInstruction(0x00,1);
+000204 e0e0
+000205 e0f0
+000206 e060
+000207 e070      	__GETD1N 0x0
+000208 940e 09f7 	CALL __PUTPARD1
+00020a e0e1      	LDI  R30,LOW(1)
+00020b 93ea      	ST   -Y,R30
+00020c 940e 00d4 	CALL _JTAG_ShiftInstruction
+                 ;     276 }
+00020e 9508      	RET
+                 ;     277 //-------------------------------------------------------------------------------------------------------------------------
+                 ;     278 // описание: Вход в режим программирования
+                 ;     279 // параметры:    нет
+                 ;     280 // возвращаемое  значение:  нет
+                 ;     281 //-------------------------------------------------------------------------------------------------------------------------
+                 ;     282 void JTAG_EnterProgMode(void)
+                 ;     283 {
+                 _JTAG_EnterProgMode:
+                 ;     284  JTAG_EnteringProgramming();
+00020f 940e 0150 	CALL _JTAG_EnteringProgramming
+                 ;     285  cJTAG_prog_mode = 1;
+000211 e0e1      	LDI  R30,LOW(1)
+000212 2e4e      	MOV  R4,R30
+                 ;     286 }
+000213 9508      	RET
+                 ;     287 //-------------------------------------------------------------------------------------------------------------------------
+                 ;     288 // описание: Выход из режима программирования
+                 ;     289 // параметры:    нет
+                 ;     290 // возвращаемое  значение:  нет
+                 ;     291 //-------------------------------------------------------------------------------------------------------------------------
+                 ;     292 void JTAG_LeaveProgMode(void)
+                 ;     293 {
+                 _JTAG_LeaveProgMode:
+                 ;     294  JTAG_LeavingProgramming();
+000214 940e 01b3 	CALL _JTAG_LeavingProgramming
+                 ;     295  cJTAG_prog_mode = 0;
+000216 2444      	CLR  R4
+                 ;     296 }
+000217 9508      	RET
+                 ;     297 //-------------------------------------------------------------------------------------------------------------------------
+                 ;     298 // описание: Проверка режима программирования
+                 ;     299 // параметры:    нет
+                 ;     300 // возвращаемое  значение:  нет
+                 ;     301 //-------------------------------------------------------------------------------------------------------------------------
+                 ;     302 char JTAG_CheckProgMode(void)
+                 ;     303 {
+                 _JTAG_CheckProgMode:
+                 ;     304  return cJTAG_prog_mode;
+000218 2de4      	MOV  R30,R4
+000219 9508      	RET
+                 ;     305 }
+                 ;     306 //-------------------------------------------------------------------------------------------------------------------------
+                 ;     307 // описание: Чтение сигнатуры
+                 ;     308 // параметры:    нет
+                 ;     309 // возвращаемое  значение:  нет
+                 ;     310 //-------------------------------------------------------------------------------------------------------------------------
+                 ;     311 unsigned long JTAG_ReadSignature(void)
+                 ;     312 {
+                 _JTAG_ReadSignature:
+                 ;     313  unsigned char ucByte;
+                 ;     314  unsigned long ulResult;
+                 ;     315 
+                 ;     316  ulResult =0;
+00021a 9724      	SBIW R28,4
+00021b 931a      	ST   -Y,R17
+                 ;	ucByte -> R17
+                 ;	ulResult -> Y+1
+00021c e0e0
+00021d 83e9
+00021e 83ea
+00021f 83eb
+000220 83ec      	__CLRD1S 1
+                 ;     317  // 9a : Enter Signature Byte Read
+                 ;     318  JTAG_WriteProgCmd(0x23, 0x08);
+000221 e2e3      	LDI  R30,LOW(35)
+000222 93ea      	ST   -Y,R30
+000223 e0e8      	LDI  R30,LOW(8)
+000224 93ea      	ST   -Y,R30
+000225 940e 0110 	CALL _JTAG_WriteProgCmd
+                 ;     319 
+                 ;     320  // 9b Load Addres 0x00
+                 ;     321  JTAG_WriteProgCmd(0x03, 0x00);
+000227 e0e3      	LDI  R30,LOW(3)
+000228 93ea      	ST   -Y,R30
+000229 e0e0      	LDI  R30,LOW(0)
+00022a 93ea      	ST   -Y,R30
+00022b 940e 0110 	CALL _JTAG_WriteProgCmd
+                 ;     322  // 9c Read Signature Byte
+                 ;     323  JTAG_WriteProgCmd(0x32, 0x00);
+00022d e3e2      	LDI  R30,LOW(50)
+00022e 93ea      	ST   -Y,R30
+00022f e0e0      	LDI  R30,LOW(0)
+000230 93ea      	ST   -Y,R30
+000231 940e 0110 	CALL _JTAG_WriteProgCmd
+                 ;     324  ucByte = JTAG_WriteProgCmd(0x33, 0x00);
+000233 e3e3      	LDI  R30,LOW(51)
+000234 93ea      	ST   -Y,R30
+000235 e0e0      	LDI  R30,LOW(0)
+000236 93ea      	ST   -Y,R30
+000237 940e 0110 	CALL _JTAG_WriteProgCmd
+000239 2f1e      	MOV  R17,R30
+                 ;     325  ulResult = ucByte;
+00023a 2fe1      	MOV  R30,R17
+00023b 27ff      	CLR  R31
+00023c 2766      	CLR  R22
+00023d 2777      	CLR  R23
+00023e 83e9
+00023f 83fa
+000240 836b
+000241 837c      	__PUTD1S 1
+                 ;     326 
+                 ;     327  // 9b Load Addres 0x01
+                 ;     328  JTAG_WriteProgCmd(0x03, 0x01);
+000242 e0e3      	LDI  R30,LOW(3)
+000243 93ea      	ST   -Y,R30
+000244 e0e1      	LDI  R30,LOW(1)
+000245 93ea      	ST   -Y,R30
+000246 940e 0110 	CALL _JTAG_WriteProgCmd
+                 ;     329  // 9c Read Signature Byte
+                 ;     330  JTAG_WriteProgCmd(0x32, 0x00);
+000248 e3e2      	LDI  R30,LOW(50)
+000249 93ea      	ST   -Y,R30
+00024a e0e0      	LDI  R30,LOW(0)
+00024b 93ea      	ST   -Y,R30
+00024c 940e 0110 	CALL _JTAG_WriteProgCmd
+                 ;     331  ucByte = JTAG_WriteProgCmd(0x33, 0x00);
+00024e e3e3      	LDI  R30,LOW(51)
+00024f 93ea      	ST   -Y,R30
+000250 e0e0      	LDI  R30,LOW(0)
+000251 93ea      	ST   -Y,R30
+000252 940e 0110 	CALL _JTAG_WriteProgCmd
+000254 2f1e      	MOV  R17,R30
+                 ;     332  ulResult = (ulResult << 8) | ucByte;
+000255 81a9
+000256 81ba
+000257 818b
+000258 819c      	__GETD2S 1
+000259 e0e8      	LDI  R30,LOW(8)
+00025a 940e 09d5 	CALL __LSLD12
+00025c 01df      	MOVW R26,R30
+00025d 01cb      	MOVW R24,R22
+00025e 2fe1      	MOV  R30,R17
+00025f 27ff      	CLR  R31
+000260 2766      	CLR  R22
+000261 2777      	CLR  R23
+000262 940e 09d0 	CALL __ORD12
+000264 83e9
+000265 83fa
+000266 836b
+000267 837c      	__PUTD1S 1
+                 ;     333 
+                 ;     334  // 9b Load Addres 0x02
+                 ;     335  JTAG_WriteProgCmd(0x03, 0x02);
+000268 e0e3      	LDI  R30,LOW(3)
+000269 93ea      	ST   -Y,R30
+00026a e0e2      	LDI  R30,LOW(2)
+00026b 93ea      	ST   -Y,R30
+00026c 940e 0110 	CALL _JTAG_WriteProgCmd
+                 ;     336  // 9c Read Signature Byte
+                 ;     337  JTAG_WriteProgCmd(0x32, 0x00);
+00026e e3e2      	LDI  R30,LOW(50)
+00026f 93ea      	ST   -Y,R30
+000270 e0e0      	LDI  R30,LOW(0)
+000271 93ea      	ST   -Y,R30
+000272 940e 0110 	CALL _JTAG_WriteProgCmd
+                 ;     338  ucByte   = JTAG_WriteProgCmd(0x33, 0x00);
+000274 e3e3      	LDI  R30,LOW(51)
+000275 93ea      	ST   -Y,R30
+000276 e0e0      	LDI  R30,LOW(0)
+000277 93ea      	ST   -Y,R30
+000278 940e 0110 	CALL _JTAG_WriteProgCmd
+00027a 2f1e      	MOV  R17,R30
+                 ;     339  ulResult = (ulResult << 8) | ucByte;
+00027b 81a9
+00027c 81ba
+00027d 818b
+00027e 819c      	__GETD2S 1
+00027f e0e8      	LDI  R30,LOW(8)
+000280 940e 09d5 	CALL __LSLD12
+000282 01df      	MOVW R26,R30
+000283 01cb      	MOVW R24,R22
+000284 2fe1      	MOV  R30,R17
+000285 27ff      	CLR  R31
+000286 2766      	CLR  R22
+000287 2777      	CLR  R23
+000288 940e 09d0 	CALL __ORD12
+00028a 83e9
+00028b 83fa
+00028c 836b
+00028d 837c      	__PUTD1S 1
+                 ;     340 
+                 ;     341  return ulResult;
+00028e 8118      	LDD  R17,Y+0
+00028f 9625      	ADIW R28,5
+000290 9508      	RET
+                 ;     342 }
+                 ;     343 //-------------------------------------------------------------------------------------------------------------------------
+                 ;     344 // описание: Чтение калибрационного байта
+                 ;     345 // параметры:    нет
+                 ;     346 // возвращаемое  значение:  нет
+                 ;     347 //-------------------------------------------------------------------------------------------------------------------------
+                 ;     348 unsigned char JTAG_ReadCalibration(void)
+                 ;     349 {
+                 _JTAG_ReadCalibration:
+                 ;     350  unsigned char ucByte;
+                 ;     351 
+                 ;     352  // 10a : Enter Calibration Byte Read
+                 ;     353  JTAG_WriteProgCmd(0x23, 0x08);
+000291 931a      	ST   -Y,R17
+                 ;	ucByte -> R17
+000292 e2e3      	LDI  R30,LOW(35)
+000293 93ea      	ST   -Y,R30
+000294 e0e8      	LDI  R30,LOW(8)
+000295 93ea      	ST   -Y,R30
+000296 940e 0110 	CALL _JTAG_WriteProgCmd
+                 ;     354  // 10b : Load Address
+                 ;     355  JTAG_WriteProgCmd(0x03, 0x00);
+000298 e0e3      	LDI  R30,LOW(3)
+000299 93ea      	ST   -Y,R30
+00029a e0e0      	LDI  R30,LOW(0)
+00029b 93ea      	ST   -Y,R30
+00029c 940e 0110 	CALL _JTAG_WriteProgCmd
+                 ;     356  // 10c : Read Calibration
+                 ;     357  JTAG_WriteProgCmd(0x36, 0x00);
+00029e e3e6      	LDI  R30,LOW(54)
+00029f 93ea      	ST   -Y,R30
+0002a0 e0e0      	LDI  R30,LOW(0)
+0002a1 93ea      	ST   -Y,R30
+0002a2 940e 0110 	CALL _JTAG_WriteProgCmd
+                 ;     358  ucByte = JTAG_WriteProgCmd(0x37, 0x00);
+0002a4 e3e7      	LDI  R30,LOW(55)
+0002a5 93ea      	ST   -Y,R30
+0002a6 e0e0      	LDI  R30,LOW(0)
+0002a7 93ea      	ST   -Y,R30
+0002a8 940e 0110 	CALL _JTAG_WriteProgCmd
+0002aa 2f1e      	MOV  R17,R30
+                 ;     359  return ucByte;
+0002ab 2fe1      	MOV  R30,R17
+0002ac c0de      	RJMP _0xAA
+                 ;     360 }
+                 ;     361 //-------------------------------------------------------------------------------------------------------------------------
+                 ;     362 // описание: Чтение байта Ext Fuse битов
+                 ;     363 // параметры:    нет
+                 ;     364 // возвращаемое  значение:  нет
+                 ;     365 //-------------------------------------------------------------------------------------------------------------------------
+                 ;     366 unsigned char JTAG_ReadFuseExt(void)
+                 ;     367 {
+                 _JTAG_ReadFuseExt:
+                 ;     368  unsigned char ucByte;
+                 ;     369  // 8a : Enter Fuse/Lock Bit Read
+                 ;     370  JTAG_WriteProgCmd(0x23, 0x04);
+0002ad 931a      	ST   -Y,R17
+                 ;	ucByte -> R17
+0002ae e2e3      	LDI  R30,LOW(35)
+0002af 93ea      	ST   -Y,R30
+0002b0 e0e4      	LDI  R30,LOW(4)
+0002b1 93ea      	ST   -Y,R30
+0002b2 940e 0110 	CALL _JTAG_WriteProgCmd
+                 ;     371  // 8b : Read Fuse High
+                 ;     372  JTAG_WriteProgCmd(0x3A, 0x00);
+0002b4 e3ea      	LDI  R30,LOW(58)
+0002b5 93ea      	ST   -Y,R30
+0002b6 e0e0      	LDI  R30,LOW(0)
+0002b7 93ea      	ST   -Y,R30
+0002b8 940e 0110 	CALL _JTAG_WriteProgCmd
+                 ;     373  ucByte = JTAG_WriteProgCmd(0x3B, 0x00);
+0002ba e3eb      	LDI  R30,LOW(59)
+0002bb 93ea      	ST   -Y,R30
+0002bc e0e0      	LDI  R30,LOW(0)
+0002bd 93ea      	ST   -Y,R30
+0002be 940e 0110 	CALL _JTAG_WriteProgCmd
+0002c0 2f1e      	MOV  R17,R30
+                 ;     374  return ucByte;
+0002c1 2fe1      	MOV  R30,R17
+0002c2 c0c8      	RJMP _0xAA
+                 ;     375 }
+                 ;     376 //-------------------------------------------------------------------------------------------------------------------------
+                 ;     377 // описание: Запись байта Ext Fuse битов
+                 ;     378 // параметры:    нет
+                 ;     379 // возвращаемое  значение:  нет
+                 ;     380 //-------------------------------------------------------------------------------------------------------------------------
+                 ;     381 void JTAG_WriteFuseExt(unsigned char ucData)
+                 ;     382 {
+                 _JTAG_WriteFuseExt:
+                 ;     383  // 6a : Enter Write Fuse Write
+                 ;     384  JTAG_WriteProgCmd(0x23, 0x40);
+                 ;	ucData -> Y+0
+0002c3 e2e3      	LDI  R30,LOW(35)
+0002c4 93ea      	ST   -Y,R30
+0002c5 e4e0      	LDI  R30,LOW(64)
+0002c6 93ea      	ST   -Y,R30
+0002c7 940e 0110 	CALL _JTAG_WriteProgCmd
+                 ;     385  // 6b : load data
+                 ;     386  JTAG_WriteProgCmd(0x13, ucData) ;
+0002c9 e1e3      	LDI  R30,LOW(19)
+0002ca 93ea      	ST   -Y,R30
+0002cb 81e9      	LDD  R30,Y+1
+0002cc 93ea      	ST   -Y,R30
+0002cd 940e 0110 	CALL _JTAG_WriteProgCmd
+                 ;     387  // 6c : write fuse high
+                 ;     388  JTAG_WriteProgCmd(0x3B, 0x00);
+0002cf e3eb      	LDI  R30,LOW(59)
+0002d0 93ea      	ST   -Y,R30
+0002d1 e0e0      	LDI  R30,LOW(0)
+0002d2 93ea      	ST   -Y,R30
+0002d3 940e 0110 	CALL _JTAG_WriteProgCmd
+                 ;     389  JTAG_WriteProgCmd(0x39, 0x00);
+0002d5 e3e9      	LDI  R30,LOW(57)
+0002d6 93ea      	ST   -Y,R30
+0002d7 e0e0      	LDI  R30,LOW(0)
+0002d8 93ea      	ST   -Y,R30
+0002d9 940e 0110 	CALL _JTAG_WriteProgCmd
+                 ;     390  JTAG_WriteProgCmd(0x3B, 0x00);
+0002db e3eb      	LDI  R30,LOW(59)
+0002dc 93ea      	ST   -Y,R30
+0002dd e0e0      	LDI  R30,LOW(0)
+0002de 93ea      	ST   -Y,R30
+0002df 940e 0110 	CALL _JTAG_WriteProgCmd
+                 ;     391  JTAG_WriteProgCmd(0x3B, 0x00);
+0002e1 e3eb      	LDI  R30,LOW(59)
+0002e2 93ea      	ST   -Y,R30
+0002e3 e0e0      	LDI  R30,LOW(0)
+0002e4 93ea      	ST   -Y,R30
+0002e5 940e 0110 	CALL _JTAG_WriteProgCmd
+                 ;     392 
+                 ;     393  // 6d : poll for write complete
+                 ;     394  while ((JTAG_WriteProgCmd(0x3B, 0x00)& 0x200) == 0); // 0x37 in thedoc. Is it a typo?
+                 _0x16:
+0002e7 e3eb      	LDI  R30,LOW(59)
+0002e8 93ea      	ST   -Y,R30
+0002e9 e0e0      	LDI  R30,LOW(0)
+0002ea 93ea      	ST   -Y,R30
+0002eb 940e 0110 	CALL _JTAG_WriteProgCmd
+0002ed 70f2      	ANDI R31,HIGH(0x200)
+0002ee f3c1      	BREQ _0x16
+                 ;     395 
+                 ;     396 }
+0002ef c0cb      	RJMP _0xA9
+                 ;     397 //-------------------------------------------------------------------------------------------------------------------------
+                 ;     398 // описание: Чтение старшего байта Fuse битов
+                 ;     399 // параметры:    нет
+                 ;     400 // возвращаемое  значение:  нет
+                 ;     401 //-------------------------------------------------------------------------------------------------------------------------
+                 ;     402 unsigned char JTAG_ReadFuseHigh(void)
+                 ;     403 {
+                 _JTAG_ReadFuseHigh:
+                 ;     404  unsigned char ucByte;
+                 ;     405  // 8a : Enter Fuse/Lock Bit Read
+                 ;     406  JTAG_WriteProgCmd(0x23, 0x04);
+0002f0 931a      	ST   -Y,R17
+                 ;	ucByte -> R17
+0002f1 e2e3      	LDI  R30,LOW(35)
+0002f2 93ea      	ST   -Y,R30
+0002f3 e0e4      	LDI  R30,LOW(4)
+0002f4 93ea      	ST   -Y,R30
+0002f5 940e 0110 	CALL _JTAG_WriteProgCmd
+                 ;     407  // 8b : Read Fuse High
+                 ;     408  JTAG_WriteProgCmd(0x3E, 0x00);
+0002f7 e3ee      	LDI  R30,LOW(62)
+0002f8 93ea      	ST   -Y,R30
+0002f9 e0e0      	LDI  R30,LOW(0)
+0002fa 93ea      	ST   -Y,R30
+0002fb 940e 0110 	CALL _JTAG_WriteProgCmd
+                 ;     409  ucByte = JTAG_WriteProgCmd(0x3F, 0x00);
+0002fd e3ef      	LDI  R30,LOW(63)
+0002fe 93ea      	ST   -Y,R30
+0002ff e0e0      	LDI  R30,LOW(0)
+000300 93ea      	ST   -Y,R30
+000301 940e 0110 	CALL _JTAG_WriteProgCmd
+000303 2f1e      	MOV  R17,R30
+                 ;     410  return ucByte;
+000304 2fe1      	MOV  R30,R17
+000305 c085      	RJMP _0xAA
+                 ;     411 }
+                 ;     412 //-------------------------------------------------------------------------------------------------------------------------
+                 ;     413 // описание: Запись старшего байта Fuse битов
+                 ;     414 // параметры:    нет
+                 ;     415 // возвращаемое  значение:  нет
+                 ;     416 //-------------------------------------------------------------------------------------------------------------------------
+                 ;     417 void JTAG_WriteFuseHigh(unsigned char ucData)
+                 ;     418 {
+                 _JTAG_WriteFuseHigh:
+                 ;     419 
+                 ;     420  // 6a : Enter Write Fuse Write
+                 ;     421  JTAG_WriteProgCmd(0x23, 0x40);
+                 ;	ucData -> Y+0
+000306 e2e3      	LDI  R30,LOW(35)
+000307 93ea      	ST   -Y,R30
+000308 e4e0      	LDI  R30,LOW(64)
+000309 93ea      	ST   -Y,R30
+00030a 940e 0110 	CALL _JTAG_WriteProgCmd
+                 ;     422  // 6b : load data
+                 ;     423  JTAG_WriteProgCmd(0x13, ucData);
+00030c e1e3      	LDI  R30,LOW(19)
+00030d 93ea      	ST   -Y,R30
+00030e 81e9      	LDD  R30,Y+1
+00030f 93ea      	ST   -Y,R30
+000310 940e 0110 	CALL _JTAG_WriteProgCmd
+                 ;     424  // 6c : write fuse high
+                 ;     425  JTAG_WriteProgCmd(0x37, 0x00);
+000312 e3e7      	LDI  R30,LOW(55)
+000313 93ea      	ST   -Y,R30
+000314 e0e0      	LDI  R30,LOW(0)
+000315 93ea      	ST   -Y,R30
+000316 940e 0110 	CALL _JTAG_WriteProgCmd
+                 ;     426  JTAG_WriteProgCmd(0x35, 0x00);
+000318 e3e5      	LDI  R30,LOW(53)
+000319 93ea      	ST   -Y,R30
+00031a e0e0      	LDI  R30,LOW(0)
+00031b 93ea      	ST   -Y,R30
+00031c 940e 0110 	CALL _JTAG_WriteProgCmd
+                 ;     427  JTAG_WriteProgCmd(0x37, 0x00);
+00031e e3e7      	LDI  R30,LOW(55)
+00031f 93ea      	ST   -Y,R30
+000320 e0e0      	LDI  R30,LOW(0)
+000321 93ea      	ST   -Y,R30
+000322 940e 0110 	CALL _JTAG_WriteProgCmd
+                 ;     428  JTAG_WriteProgCmd(0x37, 0x00);
+000324 e3e7      	LDI  R30,LOW(55)
+000325 93ea      	ST   -Y,R30
+000326 e0e0      	LDI  R30,LOW(0)
+000327 93ea      	ST   -Y,R30
+000328 940e 0110 	CALL _JTAG_WriteProgCmd
+                 ;     429 
+                 ;     430  // 6d : poll for write complete
+                 ;     431  while ((JTAG_WriteProgCmd(0x37, 0x00)& 0x200) == 0);
+                 _0x19:
+00032a e3e7      	LDI  R30,LOW(55)
+00032b 93ea      	ST   -Y,R30
+00032c e0e0      	LDI  R30,LOW(0)
+00032d 93ea      	ST   -Y,R30
+00032e 940e 0110 	CALL _JTAG_WriteProgCmd
+000330 70f2      	ANDI R31,HIGH(0x200)
+000331 f3c1      	BREQ _0x19
+                 ;     432 
+                 ;     433 }
+000332 c088      	RJMP _0xA9
+                 ;     434 //-------------------------------------------------------------------------------------------------------------------------
+                 ;     435 // описание: Чтение младшего байта Fuse битов
+                 ;     436 // параметры:    нет
+                 ;     437 // возвращаемое  значение:  нет
+                 ;     438 //-------------------------------------------------------------------------------------------------------------------------
+                 ;     439 unsigned char JTAG_ReadFuseLow(void)
+                 ;     440 {
+                 _JTAG_ReadFuseLow:
+                 ;     441  unsigned char ucByte;
+                 ;     442  // 8a : Enter Fuse/Lock Bit Read
+                 ;     443  JTAG_WriteProgCmd(0x23, 0x04);
+000333 931a      	ST   -Y,R17
+                 ;	ucByte -> R17
+000334 e2e3      	LDI  R30,LOW(35)
+000335 93ea      	ST   -Y,R30
+000336 e0e4      	LDI  R30,LOW(4)
+000337 93ea      	ST   -Y,R30
+000338 940e 0110 	CALL _JTAG_WriteProgCmd
+                 ;     444  // 8c : Read Fuse Low
+                 ;     445  JTAG_WriteProgCmd(0x32, 0x00);
+00033a e3e2      	LDI  R30,LOW(50)
+00033b 93ea      	ST   -Y,R30
+00033c e0e0      	LDI  R30,LOW(0)
+00033d 93ea      	ST   -Y,R30
+00033e 940e 0110 	CALL _JTAG_WriteProgCmd
+                 ;     446  ucByte = JTAG_WriteProgCmd(0x33, 0x00);
+000340 e3e3      	LDI  R30,LOW(51)
+000341 93ea      	ST   -Y,R30
+000342 e0e0      	LDI  R30,LOW(0)
+000343 93ea      	ST   -Y,R30
+000344 940e 0110 	CALL _JTAG_WriteProgCmd
+000346 2f1e      	MOV  R17,R30
+                 ;     447  return ucByte;
+000347 2fe1      	MOV  R30,R17
+000348 c042      	RJMP _0xAA
+                 ;     448 }
+                 ;     449 //-------------------------------------------------------------------------------------------------------------------------
+                 ;     450 // описание: Запись младшего байта Fuse битов
+                 ;     451 // параметры:    нет
+                 ;     452 // возвращаемое  значение:  нет
+                 ;     453 //-------------------------------------------------------------------------------------------------------------------------
+                 ;     454 void JTAG_WriteFuseLow(unsigned char ucData)
+                 ;     455 {
+                 _JTAG_WriteFuseLow:
+                 ;     456 
+                 ;     457  // 6a : Enter Write Fuse Write
+                 ;     458  JTAG_WriteProgCmd(0x23, 0x40);
+                 ;	ucData -> Y+0
+000349 e2e3      	LDI  R30,LOW(35)
+00034a 93ea      	ST   -Y,R30
+00034b e4e0      	LDI  R30,LOW(64)
+00034c 93ea      	ST   -Y,R30
+00034d 940e 0110 	CALL _JTAG_WriteProgCmd
+                 ;     459  // 6e : load data
+                 ;     460  JTAG_WriteProgCmd(0x13, ucData);
+00034f e1e3      	LDI  R30,LOW(19)
+000350 93ea      	ST   -Y,R30
+000351 81e9      	LDD  R30,Y+1
+000352 93ea      	ST   -Y,R30
+000353 940e 0110 	CALL _JTAG_WriteProgCmd
+                 ;     461  // 6f : write fuse low
+                 ;     462  JTAG_WriteProgCmd(0x33, 0x00);
+000355 e3e3      	LDI  R30,LOW(51)
+000356 93ea      	ST   -Y,R30
+000357 e0e0      	LDI  R30,LOW(0)
+000358 93ea      	ST   -Y,R30
+000359 940e 0110 	CALL _JTAG_WriteProgCmd
+                 ;     463  JTAG_WriteProgCmd(0x31, 0x00);
+00035b e3e1      	LDI  R30,LOW(49)
+00035c 93ea      	ST   -Y,R30
+00035d e0e0      	LDI  R30,LOW(0)
+00035e 93ea      	ST   -Y,R30
+00035f 940e 0110 	CALL _JTAG_WriteProgCmd
+                 ;     464  JTAG_WriteProgCmd(0x33, 0x00);
+000361 e3e3      	LDI  R30,LOW(51)
+000362 93ea      	ST   -Y,R30
+000363 e0e0      	LDI  R30,LOW(0)
+000364 93ea      	ST   -Y,R30
+000365 940e 0110 	CALL _JTAG_WriteProgCmd
+                 ;     465  JTAG_WriteProgCmd(0x33, 0x00);
+000367 e3e3      	LDI  R30,LOW(51)
+000368 93ea      	ST   -Y,R30
+000369 e0e0      	LDI  R30,LOW(0)
+00036a 93ea      	ST   -Y,R30
+00036b 940e 0110 	CALL _JTAG_WriteProgCmd
+                 ;     466 
+                 ;     467  // 6g : poll for write complete
+                 ;     468  while ((JTAG_WriteProgCmd(0x33, 0x00) & 0x200) == 0);
+                 _0x1C:
+00036d e3e3      	LDI  R30,LOW(51)
+00036e 93ea      	ST   -Y,R30
+00036f e0e0      	LDI  R30,LOW(0)
+000370 93ea      	ST   -Y,R30
+000371 940e 0110 	CALL _JTAG_WriteProgCmd
+000373 70f2      	ANDI R31,HIGH(0x200)
+000374 f3c1      	BREQ _0x1C
+                 ;     469 
+                 ;     470 }
+000375 c045      	RJMP _0xA9
+                 ;     471 //-------------------------------------------------------------------------------------------------------------------------
+                 ;     472 // описание: Чтение Lock битов
+                 ;     473 // параметры:    нет
+                 ;     474 // возвращаемое  значение:  нет
+                 ;     475 //-------------------------------------------------------------------------------------------------------------------------
+                 ;     476 unsigned char JTAG_ReadLock(void)
+                 ;     477 {
+                 _JTAG_ReadLock:
+                 ;     478  unsigned char ucByte;
+                 ;     479  // 8a : Enter Fuse/Lock Bit Read
+                 ;     480  JTAG_WriteProgCmd(0x23, 0x04);
+000376 931a      	ST   -Y,R17
+                 ;	ucByte -> R17
+000377 e2e3      	LDI  R30,LOW(35)
+000378 93ea      	ST   -Y,R30
+000379 e0e4      	LDI  R30,LOW(4)
+00037a 93ea      	ST   -Y,R30
+00037b 940e 0110 	CALL _JTAG_WriteProgCmd
+                 ;     481  // 8d : Read Lock
+                 ;     482  JTAG_WriteProgCmd(0x36, 0x00);
+00037d e3e6      	LDI  R30,LOW(54)
+00037e 93ea      	ST   -Y,R30
+00037f e0e0      	LDI  R30,LOW(0)
+000380 93ea      	ST   -Y,R30
+000381 940e 0110 	CALL _JTAG_WriteProgCmd
+                 ;     483  ucByte = JTAG_WriteProgCmd(0x37, 0x00);
+000383 e3e7      	LDI  R30,LOW(55)
+000384 93ea      	ST   -Y,R30
+000385 e0e0      	LDI  R30,LOW(0)
+000386 93ea      	ST   -Y,R30
+000387 940e 0110 	CALL _JTAG_WriteProgCmd
+000389 2f1e      	MOV  R17,R30
+                 ;     484  return ucByte;
+00038a 2fe1      	MOV  R30,R17
+                 _0xAA:
+00038b 9119      	LD   R17,Y+
+00038c 9508      	RET
+                 ;     485 }
+                 ;     486 //-------------------------------------------------------------------------------------------------------------------------
+                 ;     487 // описание: Запись Lock битов
+                 ;     488 // параметры:    нет
+                 ;     489 // возвращаемое  значение:  нет
+                 ;     490 //-------------------------------------------------------------------------------------------------------------------------
+                 ;     491 void JTAG_WriteLock(unsigned char ucData)
+                 ;     492 {
+                 _JTAG_WriteLock:
+                 ;     493 
+                 ;     494  // 7a : Enter Write Lock Write
+                 ;     495  JTAG_WriteProgCmd(0x23, 0x20);
+                 ;	ucData -> Y+0
+00038d e2e3      	LDI  R30,LOW(35)
+00038e 93ea      	ST   -Y,R30
+00038f e2e0      	LDI  R30,LOW(32)
+000390 93ea      	ST   -Y,R30
+000391 940e 0110 	CALL _JTAG_WriteProgCmd
+                 ;     496  // 7b : load data
+                 ;     497  JTAG_WriteProgCmd(0x13, 0xC0 + (ucData & 0x3F));
+000393 e1e3      	LDI  R30,LOW(19)
+000394 93ea      	ST   -Y,R30
+000395 81e9      	LDD  R30,Y+1
+000396 73ef      	ANDI R30,LOW(0x3F)
+000397 54e0      	SUBI R30,-LOW(192)
+000398 93ea      	ST   -Y,R30
+000399 940e 0110 	CALL _JTAG_WriteProgCmd
+                 ;     498  // 7c : write lock
+                 ;     499  JTAG_WriteProgCmd(0x33, 0x00);
+00039b e3e3      	LDI  R30,LOW(51)
+00039c 93ea      	ST   -Y,R30
+00039d e0e0      	LDI  R30,LOW(0)
+00039e 93ea      	ST   -Y,R30
+00039f 940e 0110 	CALL _JTAG_WriteProgCmd
+                 ;     500  JTAG_WriteProgCmd(0x31, 0x00);
+0003a1 e3e1      	LDI  R30,LOW(49)
+0003a2 93ea      	ST   -Y,R30
+0003a3 e0e0      	LDI  R30,LOW(0)
+0003a4 93ea      	ST   -Y,R30
+0003a5 940e 0110 	CALL _JTAG_WriteProgCmd
+                 ;     501  JTAG_WriteProgCmd(0x33, 0x00);
+0003a7 e3e3      	LDI  R30,LOW(51)
+0003a8 93ea      	ST   -Y,R30
+0003a9 e0e0      	LDI  R30,LOW(0)
+0003aa 93ea      	ST   -Y,R30
+0003ab 940e 0110 	CALL _JTAG_WriteProgCmd
+                 ;     502  JTAG_WriteProgCmd(0x33, 0x00);
+0003ad e3e3      	LDI  R30,LOW(51)
+0003ae 93ea      	ST   -Y,R30
+0003af e0e0      	LDI  R30,LOW(0)
+0003b0 93ea      	ST   -Y,R30
+0003b1 940e 0110 	CALL _JTAG_WriteProgCmd
+                 ;     503 
+                 ;     504  // 7d : poll for write complete
+                 ;     505  while ((JTAG_WriteProgCmd(0x33, 0x00)& 0x200) == 0);
+                 _0x1F:
+0003b3 e3e3      	LDI  R30,LOW(51)
+0003b4 93ea      	ST   -Y,R30
+0003b5 e0e0      	LDI  R30,LOW(0)
+0003b6 93ea      	ST   -Y,R30
+0003b7 940e 0110 	CALL _JTAG_WriteProgCmd
+0003b9 70f2      	ANDI R31,HIGH(0x200)
+0003ba f3c1      	BREQ _0x1F
+                 ;     506 
+                 ;     507 }
+                 _0xA9:
+0003bb 9621      	ADIW R28,1
+0003bc 9508      	RET
+                 ;     508 //-------------------------------------------------------------------------------------------------------------------------
+                 ;     509 // описание: Стирание сродержимого микросхемы
+                 ;     510 // параметры:    нет
+                 ;     511 // возвращаемое  значение:  нет
+                 ;     512 //-------------------------------------------------------------------------------------------------------------------------
+                 ;     513 void JTAG_ChipErase(void)
+                 ;     514 {
+                 _JTAG_ChipErase:
+                 ;     515  // 1a : start chip erase
+                 ;     516  JTAG_WriteProgCmd(0x23, 0x80);
+0003bd e2e3      	LDI  R30,LOW(35)
+0003be 93ea      	ST   -Y,R30
+0003bf e8e0      	LDI  R30,LOW(128)
+0003c0 93ea      	ST   -Y,R30
+0003c1 940e 0110 	CALL _JTAG_WriteProgCmd
+                 ;     517  JTAG_WriteProgCmd(0x31, 0x80);
+0003c3 e3e1      	LDI  R30,LOW(49)
+0003c4 93ea      	ST   -Y,R30
+0003c5 e8e0      	LDI  R30,LOW(128)
+0003c6 93ea      	ST   -Y,R30
+0003c7 940e 0110 	CALL _JTAG_WriteProgCmd
+                 ;     518  JTAG_WriteProgCmd(0x33, 0x80);
+0003c9 e3e3      	LDI  R30,LOW(51)
+0003ca 93ea      	ST   -Y,R30
+0003cb e8e0      	LDI  R30,LOW(128)
+0003cc 93ea      	ST   -Y,R30
+0003cd 940e 0110 	CALL _JTAG_WriteProgCmd
+                 ;     519  JTAG_WriteProgCmd(0x33, 0x80);
+0003cf e3e3      	LDI  R30,LOW(51)
+0003d0 93ea      	ST   -Y,R30
+0003d1 e8e0      	LDI  R30,LOW(128)
+0003d2 93ea      	ST   -Y,R30
+0003d3 940e 0110 	CALL _JTAG_WriteProgCmd
+                 ;     520  // 1b : poll for chip erase complete
+                 ;     521  while ((JTAG_WriteProgCmd(0x33, 0x80) & 0x200) == 0) Nop;
+                 _0x22:
+0003d5 e3e3      	LDI  R30,LOW(51)
+0003d6 93ea      	ST   -Y,R30
+0003d7 e8e0      	LDI  R30,LOW(128)
+0003d8 93ea      	ST   -Y,R30
+0003d9 940e 0110 	CALL _JTAG_WriteProgCmd
+0003db 70f2      	ANDI R31,HIGH(0x200)
+0003dc f419      	BRNE _0x24
+0003dd 0000      	NOP
+0003de 940c 03d5 	JMP  _0x22
+                 _0x24:
+                 ;     522 
+                 ;     523 }
+0003e0 9508      	RET
+                 ;     524 //-------------------------------------------------------------------------------------------------------------------------
+                 ;     525 // описание: Чтение страницы из EEPROM памяти
+                 ;     526 // параметры:    нет
+                 ;     527 // возвращаемое  значение:  нет
+                 ;     528 //-------------------------------------------------------------------------------------------------------------------------
+                 ;     529 void JTAG_ReadEEpromPage(unsigned int uiAddr, unsigned int uiCount, unsigned char* ucBuffer)
+                 ;     530 {
+                 _JTAG_ReadEEpromPage:
+                 ;     531  unsigned char ucByte;
+                 ;     532  unsigned char ucAddrL;
+                 ;     533  unsigned char ucAddrH;
+                 ;     534  unsigned int  uiAddrEEProm;
+                 ;     535  unsigned int  i;
+                 ;     536 
+                 ;     537 
+                 ;     538  // 5a : Enter EEprom read
+                 ;     539  JTAG_WriteProgCmd(0x23, 0x03);
+0003e1 9722      	SBIW R28,2
+0003e2 940e 09fc 	CALL __SAVELOCR6
+                 ;	uiAddr -> Y+12
+                 ;	uiCount -> Y+10
+                 ;	*ucBuffer -> Y+8
+                 ;	ucByte -> R17
+                 ;	ucAddrL -> R16
+                 ;	ucAddrH -> R19
+                 ;	uiAddrEEProm -> R20,R21
+                 ;	i -> Y+6
+0003e4 e2e3      	LDI  R30,LOW(35)
+0003e5 93ea      	ST   -Y,R30
+0003e6 e0e3      	LDI  R30,LOW(3)
+0003e7 93ea      	ST   -Y,R30
+0003e8 940e 0110 	CALL _JTAG_WriteProgCmd
+                 ;     540 
+                 ;     541  for(i =0; i < uiCount; i++)
+0003ea e0e0      	LDI  R30,0
+0003eb 83ee      	STD  Y+6,R30
+0003ec 83ef      	STD  Y+6+1,R30
+                 _0x26:
+0003ed 85ea      	LDD  R30,Y+10
+0003ee 85fb      	LDD  R31,Y+10+1
+0003ef 81ae      	LDD  R26,Y+6
+0003f0 81bf      	LDD  R27,Y+6+1
+0003f1 17ae      	CP   R26,R30
+0003f2 07bf      	CPC  R27,R31
+0003f3 f598      	BRSH _0x27
+                 ;     542   {
+                 ;     543    uiAddrEEProm = uiAddr + i;
+0003f4 81ee      	LDD  R30,Y+6
+0003f5 81ff      	LDD  R31,Y+6+1
+0003f6 85ac      	LDD  R26,Y+12
+0003f7 85bd      	LDD  R27,Y+12+1
+0003f8 0fea      	ADD  R30,R26
+0003f9 1ffb      	ADC  R31,R27
+0003fa 01af      	MOVW R20,R30
+                 ;     544    ucAddrL = (unsigned char) uiAddrEEProm;
+0003fb 2f04      	MOV  R16,R20
+                 ;     545    ucAddrH = (unsigned char) (uiAddrEEProm >> 8);
+0003fc 2f35      	MOV  R19,R21
+                 ;     546    // 5b : Load Address High
+                 ;     547    JTAG_WriteProgCmd(0x07, ucAddrH);
+0003fd e0e7      	LDI  R30,LOW(7)
+0003fe 93ea      	ST   -Y,R30
+0003ff 933a      	ST   -Y,R19
+000400 940e 0110 	CALL _JTAG_WriteProgCmd
+                 ;     548    // 5c : Load Address Low
+                 ;     549    JTAG_WriteProgCmd(0x03, ucAddrL);
+000402 e0e3      	LDI  R30,LOW(3)
+000403 93ea      	ST   -Y,R30
+000404 930a      	ST   -Y,R16
+000405 940e 0110 	CALL _JTAG_WriteProgCmd
+                 ;     550 
+                 ;     551    // 5d : Read Data Byte
+                 ;     552    JTAG_WriteProgCmd(0x33, 0x00); //JTAG_WriteProgCmd(0x33, addrL); // TODO: is it a typo in the doc?
+000407 e3e3      	LDI  R30,LOW(51)
+000408 93ea      	ST   -Y,R30
+000409 e0e0      	LDI  R30,LOW(0)
+00040a 93ea      	ST   -Y,R30
+00040b 940e 0110 	CALL _JTAG_WriteProgCmd
+                 ;     553    JTAG_WriteProgCmd(0x32, 0x00);
+00040d e3e2      	LDI  R30,LOW(50)
+00040e 93ea      	ST   -Y,R30
+00040f e0e0      	LDI  R30,LOW(0)
+000410 93ea      	ST   -Y,R30
+000411 940e 0110 	CALL _JTAG_WriteProgCmd
+                 ;     554    // read data
+                 ;     555    ucByte = JTAG_WriteProgCmd(0x33, 0x00);
+000413 e3e3      	LDI  R30,LOW(51)
+000414 93ea      	ST   -Y,R30
+000415 e0e0      	LDI  R30,LOW(0)
+000416 93ea      	ST   -Y,R30
+000417 940e 0110 	CALL _JTAG_WriteProgCmd
+000419 2f1e      	MOV  R17,R30
+                 ;     556    ucBuffer[i] = ucByte;
+00041a 81ee      	LDD  R30,Y+6
+00041b 81ff      	LDD  R31,Y+6+1
+00041c 85a8      	LDD  R26,Y+8
+00041d 85b9      	LDD  R27,Y+8+1
+00041e 0fea      	ADD  R30,R26
+00041f 1ffb      	ADC  R31,R27
+000420 8310      	ST   Z,R17
+                 ;     557   }
+000421 81ee      	LDD  R30,Y+6
+000422 81ff      	LDD  R31,Y+6+1
+000423 9631      	ADIW R30,1
+000424 83ee      	STD  Y+6,R30
+000425 83ff      	STD  Y+6+1,R31
+000426 cfc6      	RJMP _0x26
+                 _0x27:
+                 ;     558 }
+000427 940e 0a03 	CALL __LOADLOCR6
+000429 962e      	ADIW R28,14
+00042a 9508      	RET
+                 ;     559 //-------------------------------------------------------------------------------------------------------------------------
+                 ;     560 // описание: Запись страницы в EEPROM память
+                 ;     561 // параметры:    нет
+                 ;     562 // возвращаемое  значение:  нет
+                 ;     563 //-------------------------------------------------------------------------------------------------------------------------
+                 ;     564 void JTAG_WriteEEpromPage(unsigned int uiAddr, unsigned int  uiCount, unsigned char* ucBuffer)
+                 ;     565 {
+                 _JTAG_WriteEEpromPage:
+                 ;     566  unsigned char ucAddrH;
+                 ;     567  unsigned char ucAddrL;
+                 ;     568  unsigned char ucByte;
+                 ;     569  unsigned int  uiAddrEEProm;
+                 ;     570  unsigned int i;
+                 ;     571 
+                 ;     572  // 4a : Enter EEprom Write
+                 ;     573  JTAG_WriteProgCmd(0x23, 0x11);
+00042b 9722      	SBIW R28,2
+00042c 940e 09fc 	CALL __SAVELOCR6
+                 ;	uiAddr -> Y+12
+                 ;	uiCount -> Y+10
+                 ;	*ucBuffer -> Y+8
+                 ;	ucAddrH -> R17
+                 ;	ucAddrL -> R16
+                 ;	ucByte -> R19
+                 ;	uiAddrEEProm -> R20,R21
+                 ;	i -> Y+6
+00042e e2e3      	LDI  R30,LOW(35)
+00042f 93ea      	ST   -Y,R30
+000430 e1e1      	LDI  R30,LOW(17)
+000431 93ea      	ST   -Y,R30
+000432 940e 0110 	CALL _JTAG_WriteProgCmd
+                 ;     574 
+                 ;     575  // save data on the JTAG_ port
+                 ;     576  for(i =0; i < uiCount; i++)
+000434 e0e0      	LDI  R30,0
+000435 83ee      	STD  Y+6,R30
+000436 83ef      	STD  Y+6+1,R30
+                 _0x29:
+000437 85ea      	LDD  R30,Y+10
+000438 85fb      	LDD  R31,Y+10+1
+000439 81ae      	LDD  R26,Y+6
+00043a 81bf      	LDD  R27,Y+6+1
+00043b 17ae      	CP   R26,R30
+00043c 07bf      	CPC  R27,R31
+00043d f5b8      	BRSH _0x2A
+                 ;     577   {
+                 ;     578    uiAddrEEProm = uiAddr + i;
+00043e 81ee      	LDD  R30,Y+6
+00043f 81ff      	LDD  R31,Y+6+1
+000440 85ac      	LDD  R26,Y+12
+000441 85bd      	LDD  R27,Y+12+1
+000442 0fea      	ADD  R30,R26
+000443 1ffb      	ADC  R31,R27
+000444 01af      	MOVW R20,R30
+                 ;     579    ucAddrL = (unsigned char) uiAddrEEProm;
+000445 2f04      	MOV  R16,R20
+                 ;     580    ucAddrH = (unsigned char) (uiAddrEEProm >> 8);
+000446 2f15      	MOV  R17,R21
+                 ;     581    // 4b : Load Address High
+                 ;     582    JTAG_WriteProgCmd(0x07, ucAddrH);
+000447 e0e7      	LDI  R30,LOW(7)
+000448 93ea      	ST   -Y,R30
+000449 931a      	ST   -Y,R17
+00044a 940e 0110 	CALL _JTAG_WriteProgCmd
+                 ;     583    // 4c : Load Address Low
+                 ;     584    JTAG_WriteProgCmd(0x03, ucAddrL);
+00044c e0e3      	LDI  R30,LOW(3)
+00044d 93ea      	ST   -Y,R30
+00044e 930a      	ST   -Y,R16
+00044f 940e 0110 	CALL _JTAG_WriteProgCmd
+                 ;     585 
+                 ;     586    // 4d : Load Data low;
+                 ;     587    ucByte = ucBuffer[i];
+000451 81ee      	LDD  R30,Y+6
+000452 81ff      	LDD  R31,Y+6+1
+000453 85a8      	LDD  R26,Y+8
+000454 85b9      	LDD  R27,Y+8+1
+000455 0fae      	ADD  R26,R30
+000456 1fbf      	ADC  R27,R31
+000457 913c      	LD   R19,X
+                 ;     588    JTAG_WriteProgCmd(0x13,ucByte);
+000458 e1e3      	LDI  R30,LOW(19)
+000459 93ea      	ST   -Y,R30
+00045a 933a      	ST   -Y,R19
+00045b 940e 0110 	CALL _JTAG_WriteProgCmd
+                 ;     589 
+                 ;     590    // 4f : Latch Data
+                 ;     591    JTAG_WriteProgCmd(0x37, 0x00);
+00045d e3e7      	LDI  R30,LOW(55)
+00045e 93ea      	ST   -Y,R30
+00045f e0e0      	LDI  R30,LOW(0)
+000460 93ea      	ST   -Y,R30
+000461 940e 0110 	CALL _JTAG_WriteProgCmd
+                 ;     592    JTAG_WriteProgCmd(0x77, 0x00);
+000463 e7e7      	LDI  R30,LOW(119)
+000464 93ea      	ST   -Y,R30
+000465 e0e0      	LDI  R30,LOW(0)
+000466 93ea      	ST   -Y,R30
+000467 940e 0110 	CALL _JTAG_WriteProgCmd
+                 ;     593    JTAG_WriteProgCmd(0x37, 0x00);
+000469 e3e7      	LDI  R30,LOW(55)
+00046a 93ea      	ST   -Y,R30
+00046b e0e0      	LDI  R30,LOW(0)
+00046c 93ea      	ST   -Y,R30
+00046d 940e 0110 	CALL _JTAG_WriteProgCmd
+                 ;     594   }
+00046f 81ee      	LDD  R30,Y+6
+000470 81ff      	LDD  R31,Y+6+1
+000471 9631      	ADIW R30,1
+000472 83ee      	STD  Y+6,R30
+000473 83ff      	STD  Y+6+1,R31
+000474 cfc2      	RJMP _0x29
+                 _0x2A:
+                 ;     595   // 4f : Write EEProm Page
+                 ;     596   JTAG_WriteProgCmd(0x33, 0x00);
+000475 e3e3      	LDI  R30,LOW(51)
+000476 93ea      	ST   -Y,R30
+000477 e0e0      	LDI  R30,LOW(0)
+000478 93ea      	ST   -Y,R30
+000479 940e 0110 	CALL _JTAG_WriteProgCmd
+                 ;     597   JTAG_WriteProgCmd(0x31, 0x00);
+00047b e3e1      	LDI  R30,LOW(49)
+00047c 93ea      	ST   -Y,R30
+00047d e0e0      	LDI  R30,LOW(0)
+00047e 93ea      	ST   -Y,R30
+00047f 940e 0110 	CALL _JTAG_WriteProgCmd
+                 ;     598   JTAG_WriteProgCmd(0x33, 0x00);
+000481 e3e3      	LDI  R30,LOW(51)
+000482 93ea      	ST   -Y,R30
+000483 e0e0      	LDI  R30,LOW(0)
+000484 93ea      	ST   -Y,R30
+000485 940e 0110 	CALL _JTAG_WriteProgCmd
+                 ;     599   JTAG_WriteProgCmd(0x33, 0x00);
+000487 e3e3      	LDI  R30,LOW(51)
+000488 93ea      	ST   -Y,R30
+000489 e0e0      	LDI  R30,LOW(0)
+00048a 93ea      	ST   -Y,R30
+00048b 940e 0110 	CALL _JTAG_WriteProgCmd
+                 ;     600 
+                 ;     601   // 4g : poll for page write complete
+                 ;     602   while ((JTAG_WriteProgCmd(0x33, 0x00) & 0x200) == 0) Nop;
+                 _0x2B:
+00048d e3e3      	LDI  R30,LOW(51)
+00048e 93ea      	ST   -Y,R30
+00048f e0e0      	LDI  R30,LOW(0)
+000490 93ea      	ST   -Y,R30
+000491 940e 0110 	CALL _JTAG_WriteProgCmd
+000493 70f2      	ANDI R31,HIGH(0x200)
+000494 f419      	BRNE _0x2D
+000495 0000      	NOP
+000496 940c 048d 	JMP  _0x2B
+                 _0x2D:
+                 ;     603 }
+000498 c053      	RJMP _0xA8
+                 ;     604 //-------------------------------------------------------------------------------------------------------------------------
+                 ;     605 // описание: Чтение блока из FLASH памяти
+                 ;     606 // параметры:    нет
+                 ;     607 // возвращаемое  значение:  нет
+                 ;     608 //-------------------------------------------------------------------------------------------------------------------------
+                 ;     609 void JTAG_ReadFlashPage(unsigned int uiAddr, unsigned int uiCount, unsigned char* ucBuffer)
+                 ;     610 {
+                 _JTAG_ReadFlashPage:
+                 ;     611  unsigned char ucAddrH;
+                 ;     612  unsigned char ucAddrL;
+                 ;     613  unsigned char ucByteL;
+                 ;     614  unsigned char ucByteH;
+                 ;     615  unsigned int  uiAddrFlash;
+                 ;     616  unsigned int  i;
+                 ;     617 
+                 ;     618  // 3a : Enter Flash read
+                 ;     619  JTAG_WriteProgCmd(0x23, 0x02);
+000499 9722      	SBIW R28,2
+00049a 940e 09fc 	CALL __SAVELOCR6
+                 ;	uiAddr -> Y+12
+                 ;	uiCount -> Y+10
+                 ;	*ucBuffer -> Y+8
+                 ;	ucAddrH -> R17
+                 ;	ucAddrL -> R16
+                 ;	ucByteL -> R19
+                 ;	ucByteH -> R18
+                 ;	uiAddrFlash -> R20,R21
+                 ;	i -> Y+6
+00049c e2e3      	LDI  R30,LOW(35)
+00049d 93ea      	ST   -Y,R30
+00049e e0e2      	LDI  R30,LOW(2)
+00049f 93ea      	ST   -Y,R30
+0004a0 940e 0110 	CALL _JTAG_WriteProgCmd
+                 ;     620 
+                 ;     621  for(i =0; i < uiCount; i++)
+0004a2 e0e0      	LDI  R30,0
+0004a3 83ee      	STD  Y+6,R30
+0004a4 83ef      	STD  Y+6+1,R30
+                 _0x2F:
+0004a5 85ea      	LDD  R30,Y+10
+0004a6 85fb      	LDD  R31,Y+10+1
+0004a7 81ae      	LDD  R26,Y+6
+0004a8 81bf      	LDD  R27,Y+6+1
+0004a9 17ae      	CP   R26,R30
+0004aa 07bf      	CPC  R27,R31
+0004ab f010      	BRLO PC+3
+0004ac 940c 04ec 	JMP _0x30
+                 ;     622   {
+                 ;     623    uiAddrFlash = uiAddr + i;
+0004ae 81ee      	LDD  R30,Y+6
+0004af 81ff      	LDD  R31,Y+6+1
+0004b0 85ac      	LDD  R26,Y+12
+0004b1 85bd      	LDD  R27,Y+12+1
+0004b2 0fea      	ADD  R30,R26
+0004b3 1ffb      	ADC  R31,R27
+0004b4 01af      	MOVW R20,R30
+                 ;     624    ucAddrL = (unsigned char) uiAddrFlash;
+0004b5 2f04      	MOV  R16,R20
+                 ;     625    ucAddrH = (unsigned char) (uiAddrFlash >> 8);
+0004b6 2f15      	MOV  R17,R21
+                 ;     626    // 3b : Load Address High
+                 ;     627    JTAG_WriteProgCmd(0x07, ucAddrH);
+0004b7 e0e7      	LDI  R30,LOW(7)
+0004b8 93ea      	ST   -Y,R30
+0004b9 931a      	ST   -Y,R17
+0004ba 940e 0110 	CALL _JTAG_WriteProgCmd
+                 ;     628    // 3c : Load Address Low
+                 ;     629    JTAG_WriteProgCmd(0x03, ucAddrL);
+0004bc e0e3      	LDI  R30,LOW(3)
+0004bd 93ea      	ST   -Y,R30
+0004be 930a      	ST   -Y,R16
+0004bf 940e 0110 	CALL _JTAG_WriteProgCmd
+                 ;     630    // 3d : Read Data Bytes
+                 ;     631    JTAG_WriteProgCmd(0x32, 0x00);
+0004c1 e3e2      	LDI  R30,LOW(50)
+0004c2 93ea      	ST   -Y,R30
+0004c3 e0e0      	LDI  R30,LOW(0)
+0004c4 93ea      	ST   -Y,R30
+0004c5 940e 0110 	CALL _JTAG_WriteProgCmd
+                 ;     632    ucByteL = JTAG_WriteProgCmd(0x36, 0x00);
+0004c7 e3e6      	LDI  R30,LOW(54)
+0004c8 93ea      	ST   -Y,R30
+0004c9 e0e0      	LDI  R30,LOW(0)
+0004ca 93ea      	ST   -Y,R30
+0004cb 940e 0110 	CALL _JTAG_WriteProgCmd
+0004cd 2f3e      	MOV  R19,R30
+                 ;     633    ucByteH = JTAG_WriteProgCmd(0x37, 0x00);
+0004ce e3e7      	LDI  R30,LOW(55)
+0004cf 93ea      	ST   -Y,R30
+0004d0 e0e0      	LDI  R30,LOW(0)
+0004d1 93ea      	ST   -Y,R30
+0004d2 940e 0110 	CALL _JTAG_WriteProgCmd
+0004d4 2f2e      	MOV  R18,R30
+                 ;     634    ucBuffer[i * 2] = ucByteL;
+0004d5 81ee      	LDD  R30,Y+6
+0004d6 81ff      	LDD  R31,Y+6+1
+0004d7 0fee      	LSL  R30
+0004d8 1fff      	ROL  R31
+0004d9 85a8      	LDD  R26,Y+8
+0004da 85b9      	LDD  R27,Y+8+1
+0004db 0fea      	ADD  R30,R26
+0004dc 1ffb      	ADC  R31,R27
+0004dd 8330      	ST   Z,R19
+                 ;     635    ucBuffer[(i * 2) + 1] = ucByteH;
+0004de 81ee      	LDD  R30,Y+6
+0004df 81ff      	LDD  R31,Y+6+1
+0004e0 0fee      	LSL  R30
+0004e1 1fff      	ROL  R31
+0004e2 9631      	ADIW R30,1
+0004e3 0fea      	ADD  R30,R26
+0004e4 1ffb      	ADC  R31,R27
+0004e5 8320      	ST   Z,R18
+                 ;     636   }
+0004e6 81ee      	LDD  R30,Y+6
+0004e7 81ff      	LDD  R31,Y+6+1
+0004e8 9631      	ADIW R30,1
+0004e9 83ee      	STD  Y+6,R30
+0004ea 83ff      	STD  Y+6+1,R31
+0004eb cfb9      	RJMP _0x2F
+                 _0x30:
+                 ;     637 }
+                 _0xA8:
+0004ec 940e 0a03 	CALL __LOADLOCR6
+0004ee 962e      	ADIW R28,14
+0004ef 9508      	RET
+                 ;     638 //-------------------------------------------------------------------------------------------------------------------------
+                 ;     639 // описание: Запись страницы во FLASH память
+                 ;     640 // параметры:    нет
+                 ;     641 // возвращаемое  значение:  нет
+                 ;     642 //-------------------------------------------------------------------------------------------------------------------------
+                 ;     643 void JTAG_WriteFlashPage(unsigned int uiAddr, unsigned int uiCount, unsigned char* ucBuffer)
+                 ;     644 {
+                 _JTAG_WriteFlashPage:
+                 ;     645  unsigned char ucAddrE;
+                 ;     646  unsigned char ucAddrH;
+                 ;     647  unsigned char ucAddrL;
+                 ;     648  unsigned int  uiAddrFlash;
+                 ;     649  unsigned char ucByteL;
+                 ;     650  unsigned char ucByteH;
+                 ;     651  unsigned int i;
+                 ;     652 
+                 ;     653 
+                 ;     654  // 2a : Enter Flash Write
+                 ;     655  JTAG_WriteProgCmd(0x23, 0x10);
+0004f0 9723      	SBIW R28,3
+0004f1 940e 09fc 	CALL __SAVELOCR6
+                 ;	uiAddr -> Y+13
+                 ;	uiCount -> Y+11
+                 ;	*ucBuffer -> Y+9
+                 ;	ucAddrE -> R17
+                 ;	ucAddrH -> R16
+                 ;	ucAddrL -> R19
+                 ;	uiAddrFlash -> R20,R21
+                 ;	ucByteL -> R18
+                 ;	ucByteH -> Y+8
+                 ;	i -> Y+6
+0004f3 e2e3      	LDI  R30,LOW(35)
+0004f4 93ea      	ST   -Y,R30
+0004f5 e1e0      	LDI  R30,LOW(16)
+0004f6 93ea      	ST   -Y,R30
+0004f7 940e 0110 	CALL _JTAG_WriteProgCmd
+                 ;     656 
+                 ;     657  ucAddrE = 0;
+0004f9 e010      	LDI  R17,LOW(0)
+                 ;     658  // 2b : Load Address Extended
+                 ;     659  JTAG_WriteProgCmd(0x0B, ucAddrE);
+0004fa e0eb      	LDI  R30,LOW(11)
+0004fb 93ea      	ST   -Y,R30
+0004fc 931a      	ST   -Y,R17
+0004fd 940e 0110 	CALL _JTAG_WriteProgCmd
+                 ;     660 
+                 ;     661  // save data on the JTAG_ port
+                 ;     662  for(i =0; i < uiCount; i++)
+0004ff e0e0      	LDI  R30,0
+000500 83ee      	STD  Y+6,R30
+000501 83ef      	STD  Y+6+1,R30
+                 _0x32:
+000502 85eb      	LDD  R30,Y+11
+000503 85fc      	LDD  R31,Y+11+1
+000504 81ae      	LDD  R26,Y+6
+000505 81bf      	LDD  R27,Y+6+1
+000506 17ae      	CP   R26,R30
+000507 07bf      	CPC  R27,R31
+000508 f010      	BRLO PC+3
+000509 940c 0555 	JMP _0x33
+                 ;     663   {
+                 ;     664    uiAddrFlash = uiAddr + i;
+00050b 81ee      	LDD  R30,Y+6
+00050c 81ff      	LDD  R31,Y+6+1
+00050d 85ad      	LDD  R26,Y+13
+00050e 85be      	LDD  R27,Y+13+1
+00050f 0fea      	ADD  R30,R26
+000510 1ffb      	ADC  R31,R27
+000511 01af      	MOVW R20,R30
+                 ;     665    ucAddrL = (unsigned char) uiAddrFlash;
+000512 2f34      	MOV  R19,R20
+                 ;     666    ucAddrH = (unsigned char) (uiAddrFlash >> 8);
+000513 2f05      	MOV  R16,R21
+                 ;     667    // 2c : Load Address High
+                 ;     668    JTAG_WriteProgCmd(0x07, ucAddrH);
+000514 e0e7      	LDI  R30,LOW(7)
+000515 93ea      	ST   -Y,R30
+000516 930a      	ST   -Y,R16
+000517 940e 0110 	CALL _JTAG_WriteProgCmd
+                 ;     669    // 2d : Load Address Low
+                 ;     670    JTAG_WriteProgCmd(0x03, ucAddrL);
+000519 e0e3      	LDI  R30,LOW(3)
+00051a 93ea      	ST   -Y,R30
+00051b 933a      	ST   -Y,R19
+00051c 940e 0110 	CALL _JTAG_WriteProgCmd
+                 ;     671 
+                 ;     672    ucByteL = ucBuffer[i * 2];
+00051e 81ee      	LDD  R30,Y+6
+00051f 81ff      	LDD  R31,Y+6+1
+000520 0fee      	LSL  R30
+000521 1fff      	ROL  R31
+000522 85a9      	LDD  R26,Y+9
+000523 85ba      	LDD  R27,Y+9+1
+000524 0fae      	ADD  R26,R30
+000525 1fbf      	ADC  R27,R31
+000526 912c      	LD   R18,X
+                 ;     673    ucByteH = ucBuffer[(i * 2) + 1];
+000527 81ee      	LDD  R30,Y+6
+000528 81ff      	LDD  R31,Y+6+1
+000529 0fee      	LSL  R30
+00052a 1fff      	ROL  R31
+00052b 9631      	ADIW R30,1
+00052c 85a9      	LDD  R26,Y+9
+00052d 85ba      	LDD  R27,Y+9+1
+00052e 0fae      	ADD  R26,R30
+00052f 1fbf      	ADC  R27,R31
+000530 91ec      	LD   R30,X
+000531 87e8      	STD  Y+8,R30
+                 ;     674 
+                 ;     675    // 2e : Load Data low;
+                 ;     676    JTAG_WriteProgCmd(0x13, ucByteL);
+000532 e1e3      	LDI  R30,LOW(19)
+000533 93ea      	ST   -Y,R30
+000534 932a      	ST   -Y,R18
+000535 940e 0110 	CALL _JTAG_WriteProgCmd
+                 ;     677    // 2f : Load Data high
+                 ;     678    JTAG_WriteProgCmd(0x17, ucByteH);
+000537 e1e7      	LDI  R30,LOW(23)
+000538 93ea      	ST   -Y,R30
+000539 85e9      	LDD  R30,Y+9
+00053a 93ea      	ST   -Y,R30
+00053b 940e 0110 	CALL _JTAG_WriteProgCmd
+                 ;     679 
+                 ;     680    // 2e : Latch Data
+                 ;     681    JTAG_WriteProgCmd(0x37, 0x00);
+00053d e3e7      	LDI  R30,LOW(55)
+00053e 93ea      	ST   -Y,R30
+00053f e0e0      	LDI  R30,LOW(0)
+000540 93ea      	ST   -Y,R30
+000541 940e 0110 	CALL _JTAG_WriteProgCmd
+                 ;     682    JTAG_WriteProgCmd(0x77, 0x00);
+000543 e7e7      	LDI  R30,LOW(119)
+000544 93ea      	ST   -Y,R30
+000545 e0e0      	LDI  R30,LOW(0)
+000546 93ea      	ST   -Y,R30
+000547 940e 0110 	CALL _JTAG_WriteProgCmd
+                 ;     683    JTAG_WriteProgCmd(0x37, 0x00);
+000549 e3e7      	LDI  R30,LOW(55)
+00054a 93ea      	ST   -Y,R30
+00054b e0e0      	LDI  R30,LOW(0)
+00054c 93ea      	ST   -Y,R30
+00054d 940e 0110 	CALL _JTAG_WriteProgCmd
+                 ;     684   }
+00054f 81ee      	LDD  R30,Y+6
+000550 81ff      	LDD  R31,Y+6+1
+000551 9631      	ADIW R30,1
+000552 83ee      	STD  Y+6,R30
+000553 83ff      	STD  Y+6+1,R31
+000554 cfad      	RJMP _0x32
+                 _0x33:
+                 ;     685   // 2f : Write Flash Page
+                 ;     686   JTAG_WriteProgCmd(0x37, 0x00);
+000555 e3e7      	LDI  R30,LOW(55)
+000556 93ea      	ST   -Y,R30
+000557 e0e0      	LDI  R30,LOW(0)
+000558 93ea      	ST   -Y,R30
+000559 940e 0110 	CALL _JTAG_WriteProgCmd
+                 ;     687   JTAG_WriteProgCmd(0x35, 0x00);
+00055b e3e5      	LDI  R30,LOW(53)
+00055c 93ea      	ST   -Y,R30
+00055d e0e0      	LDI  R30,LOW(0)
+00055e 93ea      	ST   -Y,R30
+00055f 940e 0110 	CALL _JTAG_WriteProgCmd
+                 ;     688   JTAG_WriteProgCmd(0x37, 0x00);
+000561 e3e7      	LDI  R30,LOW(55)
+000562 93ea      	ST   -Y,R30
+000563 e0e0      	LDI  R30,LOW(0)
+000564 93ea      	ST   -Y,R30
+000565 940e 0110 	CALL _JTAG_WriteProgCmd
+                 ;     689   JTAG_WriteProgCmd(0x37, 0x00);
+000567 e3e7      	LDI  R30,LOW(55)
+000568 93ea      	ST   -Y,R30
+000569 e0e0      	LDI  R30,LOW(0)
+00056a 93ea      	ST   -Y,R30
+00056b 940e 0110 	CALL _JTAG_WriteProgCmd
+                 ;     690 
+                 ;     691   // 2g : poll for page write complete
+                 ;     692   while((JTAG_WriteProgCmd(0x37, 0x00) & 0x200) == 0) Nop;
+                 _0x34:
+00056d e3e7      	LDI  R30,LOW(55)
+00056e 93ea      	ST   -Y,R30
+00056f e0e0      	LDI  R30,LOW(0)
+000570 93ea      	ST   -Y,R30
+000571 940e 0110 	CALL _JTAG_WriteProgCmd
+000573 70f2      	ANDI R31,HIGH(0x200)
+000574 f419      	BRNE _0x36
+000575 0000      	NOP
+000576 940c 056d 	JMP  _0x34
+                 _0x36:
+                 ;     693 }
+000578 940e 0a03 	CALL __LOADLOCR6
+00057a 962f      	ADIW R28,15
+00057b 9508      	RET
+                 ;     694 
+                 ;     695 
+                 ;     696 //----------------------------------------------------------------------------------------------------------------------------
+                 ;     697 //Mick Laboratory, Калуга 2014
+                 ;     698 //terminal.c  - модуль функций обработки команд.
+                 ;     699 //Тип микроконтроллера: atmega16a
+                 ;     700 //Автор: Mick (Тарасов Михаил)
+                 ;     701 //Версия модуля: 1.00 - 13 марта 2014
+                 ;     702 //----------------------------------------------------------------------------------------------------------------------------
+                 ;     703 #include "main.h"
+                 ;     704 	#ifndef __SLEEP_DEFINED__
+                 	#ifndef __SLEEP_DEFINED__
+                 	#endif
+                 ;     715 
+                 ;     716 #define TERMINAL_SIZE_BUFF		256
+                 ;     717 
+                 ;     718 
+                 ;     719 #define SYNC_CRC			0x20	//' '
+                 ;     720 #define SYNC_EOP			0x20	//' '
+                 ;     721 
+                 ;     722 #define PROG_OK				0x41	//'A'
+                 ;     723 #define PROG_ERROR			0x45	//'E'
+                 ;     724 
+                 ;     725 
+                 ;     726 #define PROG_PING                       0x20  	// OUT: [PROG_OK]
+                 ;     727 
+                 ;     728 #define PROG_VERSION_FIRMWARE           0x21   	// IN:  [SYNC_CRC] [SYNC_EOP]
+                 ;     729 						// OUT: [PROG_OK] / [PROG_ERROR]
+                 ;     730 						// OUT: [minor version] [major version][PROG_OK]
+                 ;     731 #define PROG_JTAG_ENTER_PROG_MODE       0x22   	// IN:  [SYNC_CRC][SYNC_EOP]
+                 ;     732 						// OUT: [PROG_OK] / [PROG_ERROR]
+                 ;     733 						// OUT: [PROG_OK]
+                 ;     734 #define PROG_JTAG_LEAVE_PROG_MODE       0x23   	// IN:  [SYNC_CRC][SYNC_EOP]
+                 ;     735 						// OUT: [PROG_OK] / [PROG_ERROR]
+                 ;     736 						// OUT: [PROG_OK]
+                 ;     737 #define PROG_JTAG_FLASH_PAGE_SIZE      	0x88   	// IN:  [pageSizeL] [pageSizeH] [SYNC_CRC] [SYNC_EOP]
+                 ;     738 						// OUT: [PROG_OK] / [PROG_ERROR]
+                 ;     739 						// OUT: [PROG_OK]
+                 ;     740 #define PROG_JTAG_EEPROM_PAGE_SIZE     	0x89   	// IN:  [pageSizeL] [pageSizeH] [SYNC_CRC] [SYNC_EOP]
+                 ;     741 						// OUT: [PROG_OK] / [PROG_ERROR]
+                 ;     742 						// OUT: [PROG_OK]
+                 ;     743 #define PROG_JTAG_WRITE_FLASH           0xA0   	// IN:  [addrBeginL] [addrBeginH] [countL] [countH] [SYNC_CRC][SYNC_EOP]
+                 ;     744 					       	// OUT: [PROG_OK] / [PROG_ERROR]
+                 ;     745 					       	// IN   [dataL][dataH] [...]
+                 ;     746 						// OUT: [PROG_OK] / [PROG_ERROR]
+                 ;     747 						// OUT: [PROG_OK]
+                 ;     748 #define PROG_JTAG_WRITE_EEPROM          0xA1   	// IN:  [addrBeginL] [addrBeginH] [countL] [countH] [SYNC_CRC][SYNC_EOP]
+                 ;     749 						// OUT: [PROG_OK] / [PROG_ERROR]
+                 ;     750 						// IN   [one byte per data] [...]
+                 ;     751 						// OUT: [PROG_OK] / [PROG_ERROR]
+                 ;     752 						// OUT: [PROG_OK]
+                 ;     753 #define PROG_JTAG_WRITE_FUSE_LOW        0xA2   	// IN:  [fuse_low] [SYNC_CRC] [SYNC_EOP]
+                 ;     754 						// OUT: [PROG_OK] / [PROG_ERROR]
+                 ;     755 						// OUT: [PROG_OK] / [PROG_ERROR]
+                 ;     756 #define PROG_JTAG_WRITE_FUSE_HIGH       0xA3   	// IN:  [fuse_high] [SYNC_CRC] [SYNC_EOP]
+                 ;     757 						// OUT: [PROG_OK] / [PROG_ERROR]
+                 ;     758 						// OUT: [PROG_OK] / [PROG_ERROR]
+                 ;     759 #define PROG_JTAG_WRITE_FUSE_EXT        0xA4   	// IN:  [fuse_ext] [SYNC_CRC] [SYNC_EOP]
+                 ;     760 						// OUT: [PROG_OK] / [PROG_ERROR]
+                 ;     761 						// OUT: [PROG_OK] / [PROG_ERROR]
+                 ;     762 #define PROG_JTAG_WRITE_LOCK            0xA5   	// IN:  [lock] [SYNC_CRC] [SYNC_EOP]
+                 ;     763 						// OUT: [PROG_OK] / [PROG_ERROR]
+                 ;     764 						// OUT: [PROG_OK] / [PROG_ERROR]
+                 ;     765 #define PROG_JTAG_CHIP_ERASE            0xA6   	// IN:  [SYNC_CRC][SYNC_EOP]
+                 ;     766 						// OUT: [PROG_OK] / [PROG_ERROR]
+                 ;     767 						// OUT: [PROG_OK]
+                 ;     768 #define PROG_JTAG_READ_FLASH            0xB0   	// IN:  [addrBeginL] [addrBeginH] [countL] [countH] [SYNC_CRC] [SYNC_EOP]
+                 ;     769 						// OUT: [PROG_OK] / [PROG_ERROR]
+                 ;     770 						// OUT: [dataL][dataH] [...] [PROG_OK]
+                 ;     771 #define PROG_JTAG_READ_EEPROM           0xB1   	// IN:  [addrBeginL] [addrBeginH] [countL] [countH] [SYNC_CRC] [SYNC_EOP]
+                 ;     772 						// OUT: [PROG_OK] / [PROG_ERROR]
+                 ;     773 						// OUT: [one byte per data] [...] [PROG_OK]
+                 ;     774 #define PROG_JTAG_READ_FUSE_LOW         0xB2   	// IN:  [SYNC_CRC] [SYNC_EOP]
+                 ;     775 						// OUT: [PROG_OK] / [PROG_ERROR]
+                 ;     776 						// OUT: [fuse_low] [PROG_OK]
+                 ;     777 #define PROG_JTAG_READ_FUSE_HIGH        0xB3   	// IN:  [SYNC_CRC] [SYNC_EOP]
+                 ;     778 						// OUT: [PROG_OK] / [PROG_ERROR]
+                 ;     779 						// OUT: [fuse_high] [PROG_OK]
+                 ;     780 #define PROG_JTAG_READ_FUSE_EXT         0xB4   	// IN:  [SYNC_CRC] [SYNC_EOP]
+                 ;     781 						// OUT: [PROG_OK] / [PROG_ERROR]
+                 ;     782 						// OUT: [fuse_ext] [PROG_OK]
+                 ;     783 #define PROG_JTAG_READ_LOCK             0xB5   	// IN:  [SYNC_CRC] [SYNC_EOP]
+                 ;     784 						// OUT: [PROG_OK] / [PROG_ERROR]
+                 ;     785 						// OUT: [lock] [PROG_OK]
+                 ;     786 #define PROG_JTAG_READ_SIGNATURE        0xB6   	// IN:  [SYNC_CRC] [SYNC_EOP]
+                 ;     787 						// OUT: [PROG_OK] / [PROG_ERROR]
+                 ;     788 						// OUT: [signa1] [signa2] [signa3][0x00] [PROG_OK]
+                 ;     789 #define PROG_JTAG_READ_CALIBRATION      0xB7   	// IN: 	[SYNC_CRC] [SYNC_EOP]
+                 ;     790 						// OUT: [PROG_OK] / [PROG_ERROR]
+                 ;     791 						// OUT: [calibration] [PROG_OK]
+                 ;     792 
+                 ;     793 #define TERMINAL_CMD_TIMER		250	//1 секунда
+                 ;     794 
+                 ;     795 #define MAJOR_VERSION		        1
+                 ;     796 #define MINOR_VERSION		        0
+                 ;     797 
+                 ;     798 //----------------------------------------------------------------------------------------------------------------------
+                 ;     799 //описание:описание переменных контроллера
+                 ;     800 //-----------------------------------------------------------------------------------------------------------------------
+                 ;     801  unsigned char ucTerminal_memory_buff[TERMINAL_SIZE_BUFF];	//буфер памяти
+                 
+                 	.DSEG
+                 _ucTerminal_memory_buff:
+000160           	.BYTE 0x100
+                 ;     802  unsigned int  uiTerminal_size_flpage;				//размер страницы FLASH памяти
+                 ;     803  unsigned int  uiTerminal_size_eepage;				//размер страницы EEPROM памяти
+                 ;     804 //----------------------------------------------------------------------
+                 ;     805 // описание:   Инициализация переменных
+                 ;     806 // параметры:  нет
+                 ;     807 // возвращаемое  значение:   нет
+                 ;     808 //----------------------------------------------------------------------
+                 ;     809 void Terminal_init(void)
+                 ;     810 {
+                 
+                 	.CSEG
+                 _Terminal_init:
+                 ;     811  uiTerminal_size_flpage =0;				//размер страницы памяти
+00057c 2488      	CLR  R8
+00057d 2499      	CLR  R9
+                 ;     812  uiTerminal_size_eepage =0;				//размер страницы памяти
+00057e 24aa      	CLR  R10
+00057f 24bb      	CLR  R11
+                 ;     813 }
+000580 9508      	RET
+                 ;     814 //-----------------------------------------------------------------------------------------------------------------------
+                 ;     815 // описание:  Анализ управляющих команд
+                 ;     816 // параметры:    нет
+                 ;     817 // возвращаемое  значение:  нет
+                 ;     818 //-------------------------------------------------------------------------------------------------------------------------
+                 ;     819 char Terminal_cmd_correct(void)
+                 ;     820 {
+                 _Terminal_cmd_correct:
+                 ;     821  char i;
+                 ;     822  unsigned char ucCmd;
+                 ;     823  unsigned int uiTimer;
+                 ;     824 
+                 ;     825  i =0;
+000581 940e 09fe 	CALL __SAVELOCR4
+                 ;	i -> R17
+                 ;	ucCmd -> R16
+                 ;	uiTimer -> R18,R19
+000583 e010      	LDI  R17,LOW(0)
+                 ;     826  uiTimer = CPU_get_timer_ms();				//установим таймер на ожидание команды
+000584 940e 0081 	CALL _CPU_get_timer_ms
+000586 019f      	MOVW R18,R30
+                 ;     827 
+                 ;     828  for(;;)
+                 _0x38:
+                 ;     829   {
+                 ;     830    if((CPU_get_timer_ms() - uiTimer) >= TERMINAL_CMD_TIMER) return 0; //сработал таймер
+000587 940e 0081 	CALL _CPU_get_timer_ms
+000589 1be2      	SUB  R30,R18
+00058a 0bf3      	SBC  R31,R19
+00058b 3fea      	CPI  R30,LOW(0xFA)
+00058c e0a0      	LDI  R26,HIGH(0xFA)
+00058d 07fa      	CPC  R31,R26
+00058e f010      	BRLO _0x3A
+00058f e0e0      	LDI  R30,LOW(0)
+000590 c019      	RJMP _0xA7
+                 ;     831 
+                 ;     832    if(UART_read_check() ==0) continue;			//команд не приходило
+                 _0x3A:
+000591 940e 096b 	CALL _UART_read_check
+000593 30e0      	CPI  R30,0
+000594 f099      	BREQ _0x37
+                 ;     833    if(i == 0)
+000595 3010      	CPI  R17,0
+000596 f441      	BRNE _0x3C
+                 ;     834     {
+                 ;     835      ucCmd = UART_read_byte();
+000597 940e 0971 	CALL _UART_read_byte
+000599 2f0e      	MOV  R16,R30
+                 ;     836      if(ucCmd != SYNC_CRC) return 0;
+00059a 3200      	CPI  R16,32
+00059b f011      	BREQ _0x3D
+00059c e0e0      	LDI  R30,LOW(0)
+00059d c00c      	RJMP _0xA7
+                 ;     837     }
+                 _0x3D:
+                 ;     838    else
+00059e c008      	RJMP _0x3E
+                 _0x3C:
+                 ;     839     {
+                 ;     840      ucCmd = UART_read_byte();
+00059f 940e 0971 	CALL _UART_read_byte
+0005a1 2f0e      	MOV  R16,R30
+                 ;     841      if(ucCmd != SYNC_EOP) return 0;
+0005a2 3200      	CPI  R16,32
+0005a3 f011      	BREQ _0x3F
+0005a4 e0e0      	LDI  R30,LOW(0)
+0005a5 c004      	RJMP _0xA7
+                 ;     842      break;
+                 _0x3F:
+0005a6 c002      	RJMP _0x39
+                 ;     843     }
+                 _0x3E:
+                 ;     844    i = i + 1;
+0005a7 5f1f      	SUBI R17,-LOW(1)
+                 ;     845   }
+                 _0x37:
+0005a8 cfde      	RJMP _0x38
+                 _0x39:
+                 ;     846  return 1;
+0005a9 e0e1      	LDI  R30,LOW(1)
+                 _0xA7:
+0005aa 940e 0a05 	CALL __LOADLOCR4
+0005ac 9624      	ADIW R28,4
+0005ad 9508      	RET
+                 ;     847 }
+                 ;     848 //-----------------------------------------------------------------------------------------------------------------------
+                 ;     849 // описание:  Прием данных от Хоста
+                 ;     850 // параметры:    нет
+                 ;     851 // возвращаемое  значение:  нет
+                 ;     852 //-------------------------------------------------------------------------------------------------------------------------
+                 ;     853 char Terminal_data_load(unsigned int uiCountByte, unsigned char *ucBuffer)
+                 ;     854 {
+                 _Terminal_data_load:
+                 ;     855  unsigned char ucByte;
+                 ;     856  unsigned int i;
+                 ;     857  unsigned int uiTimer;
+                 ;     858 
+                 ;     859  i =0;
+0005ae 940e 09fc 	CALL __SAVELOCR6
+                 ;	uiCountByte -> Y+8
+                 ;	*ucBuffer -> Y+6
+                 ;	ucByte -> R17
+                 ;	i -> R18,R19
+                 ;	uiTimer -> R20,R21
+0005b0 e020
+0005b1 e030      	__GETWRN 18,19,0
+                 ;     860  uiTimer = CPU_get_timer_ms();				//установим таймер на ожидание команды
+0005b2 940e 0081 	CALL _CPU_get_timer_ms
+0005b4 01af      	MOVW R20,R30
+                 ;     861 
+                 ;     862  for(;;)
+                 _0x41:
+                 ;     863   {
+                 ;     864    if((CPU_get_timer_ms() - uiTimer) >= TERMINAL_CMD_TIMER) return 0; //сработал таймер
+0005b5 940e 0081 	CALL _CPU_get_timer_ms
+0005b7 1be4      	SUB  R30,R20
+0005b8 0bf5      	SBC  R31,R21
+0005b9 3fea      	CPI  R30,LOW(0xFA)
+0005ba e0a0      	LDI  R26,HIGH(0xFA)
+0005bb 07fa      	CPC  R31,R26
+0005bc f010      	BRLO _0x43
+0005bd e0e0      	LDI  R30,LOW(0)
+0005be c019      	RJMP _0xA6
+                 ;     865 
+                 ;     866    if(UART_read_check() ==0) continue;			//данных пока нет
+                 _0x43:
+0005bf 940e 096b 	CALL _UART_read_check
+0005c1 30e0      	CPI  R30,0
+0005c2 f099      	BREQ _0x40
+                 ;     867    ucByte = UART_read_byte();
+0005c3 940e 0971 	CALL _UART_read_byte
+0005c5 2f1e      	MOV  R17,R30
+                 ;     868    uiTimer = CPU_get_timer_ms();			//установим таймер на ожидание команды
+0005c6 940e 0081 	CALL _CPU_get_timer_ms
+0005c8 01af      	MOVW R20,R30
+                 ;     869    ucBuffer[i] = ucByte;
+0005c9 01f9      	MOVW R30,R18
+0005ca 81ae      	LDD  R26,Y+6
+0005cb 81bf      	LDD  R27,Y+6+1
+0005cc 0fea      	ADD  R30,R26
+0005cd 1ffb      	ADC  R31,R27
+0005ce 8310      	ST   Z,R17
+                 ;     870    i = i +1;
+0005cf 5f2f
+0005d0 4f3f      	__ADDWRN 18,19,1
+                 ;     871    if(i >= uiCountByte) break;
+0005d1 85e8      	LDD  R30,Y+8
+0005d2 85f9      	LDD  R31,Y+8+1
+0005d3 172e      	CP   R18,R30
+0005d4 073f      	CPC  R19,R31
+0005d5 f408      	BRSH _0x42
+                 ;     872   }
+                 _0x40:
+0005d6 cfde      	RJMP _0x41
+                 _0x42:
+                 ;     873  return 1;
+0005d7 e0e1      	LDI  R30,LOW(1)
+                 _0xA6:
+0005d8 940e 0a03 	CALL __LOADLOCR6
+0005da 962a      	ADIW R28,10
+0005db 9508      	RET
+                 ;     874 }
+                 ;     875 //-----------------------------------------------------------------------------------------------------------------------
+                 ;     876 // описание:  Анализ управляющих команд
+                 ;     877 // параметры:    нет
+                 ;     878 // возвращаемое  значение:  нет
+                 ;     879 //-------------------------------------------------------------------------------------------------------------------------
+                 ;     880 void Terminal_cmd_analyze(void)
+                 ;     881 {
+                 _Terminal_cmd_analyze:
+                 ;     882   char cResult;
+                 ;     883   unsigned char ucCmd;
+                 ;     884   unsigned char ucDataByte;
+                 ;     885   unsigned int  i;
+                 ;     886   unsigned int  uiAddr;
+                 ;     887   unsigned int  uiCount;
+                 ;     888   unsigned long ulDataLong;
+                 ;     889 
+                 ;     890   cResult =0;
+0005dc 9728      	SBIW R28,8
+0005dd 940e 09fc 	CALL __SAVELOCR6
+                 ;	cResult -> R17
+                 ;	ucCmd -> R16
+                 ;	ucDataByte -> R19
+                 ;	i -> R20,R21
+                 ;	uiAddr -> Y+12
+                 ;	uiCount -> Y+10
+                 ;	ulDataLong -> Y+6
+0005df e010      	LDI  R17,LOW(0)
+                 ;     891 
+                 ;     892   if(UART_read_check() ==0) return;			//команд не приходило
+0005e0 940e 096b 	CALL _UART_read_check
+0005e2 30e0      	CPI  R30,0
+0005e3 f409      	BRNE _0x46
+0005e4 c372      	RJMP _0xA5
+                 ;     893   ucCmd = UART_read_byte();
+                 _0x46:
+0005e5 940e 0971 	CALL _UART_read_byte
+0005e7 2f0e      	MOV  R16,R30
+                 ;     894   CPU_led_state(1);
+0005e8 e0e1      	LDI  R30,LOW(1)
+0005e9 93ea      	ST   -Y,R30
+0005ea 940e 0078 	CALL _CPU_led_state
+                 ;     895 
+                 ;     896   switch(ucCmd)
+0005ec 2fe0      	MOV  R30,R16
+                 ;     897    {
+                 ;     898     case PROG_PING:
+0005ed 32e0      	CPI  R30,LOW(0x20)
+0005ee f409      	BRNE _0x4A
+                 ;     899 		  	cResult =1;
+0005ef c35a      	RJMP _0xAB
+                 ;     900         	   	break;
+                 ;     901     case PROG_VERSION_FIRMWARE:
+                 _0x4A:
+0005f0 32e1      	CPI  R30,LOW(0x21)
+0005f1 f491      	BRNE _0x4B
+                 ;     902 			if(Terminal_cmd_correct() ==0) break;
+0005f2 940e 0581 	CALL _Terminal_cmd_correct
+0005f4 30e0      	CPI  R30,0
+0005f5 f409      	BRNE _0x4C
+0005f6 c354      	RJMP _0x49
+                 ;     903  			UART_send_byte(PROG_OK);
+                 _0x4C:
+0005f7 e4e1      	LDI  R30,LOW(65)
+0005f8 93ea      	ST   -Y,R30
+0005f9 940e 097f 	CALL _UART_send_byte
+                 ;     904 			UART_send_byte(MINOR_VERSION);
+0005fb e0e0      	LDI  R30,LOW(0)
+0005fc 93ea      	ST   -Y,R30
+0005fd 940e 097f 	CALL _UART_send_byte
+                 ;     905 			UART_send_byte(MAJOR_VERSION);
+0005ff e0e1      	LDI  R30,LOW(1)
+000600 93ea      	ST   -Y,R30
+000601 940e 097f 	CALL _UART_send_byte
+                 ;     906  		  	cResult =1;
+000603 c346      	RJMP _0xAB
+                 ;     907         		break;
+                 ;     908     case PROG_JTAG_ENTER_PROG_MODE:
+                 _0x4B:
+000604 32e2      	CPI  R30,LOW(0x22)
+000605 f481      	BRNE _0x4D
+                 ;     909 			if(Terminal_cmd_correct() ==0) break;
+000606 940e 0581 	CALL _Terminal_cmd_correct
+000608 30e0      	CPI  R30,0
+000609 f409      	BRNE _0x4E
+00060a c340      	RJMP _0x49
+                 ;     910 			UART_send_byte(PROG_OK);
+                 _0x4E:
+00060b e4e1      	LDI  R30,LOW(65)
+00060c 93ea      	ST   -Y,R30
+00060d 940e 097f 	CALL _UART_send_byte
+                 ;     911 			if(JTAG_CheckProgMode() ==0) JTAG_EnterProgMode();
+00060f 940e 0218 	CALL _JTAG_CheckProgMode
+000611 30e0      	CPI  R30,0
+000612 f411      	BRNE _0x4F
+000613 940e 020f 	CALL _JTAG_EnterProgMode
+                 ;     912   			cResult =1;
+                 _0x4F:
+000615 c334      	RJMP _0xAB
+                 ;     913 			break;
+                 ;     914     case PROG_JTAG_LEAVE_PROG_MODE:
+                 _0x4D:
+000616 32e3      	CPI  R30,LOW(0x23)
+000617 f481      	BRNE _0x50
+                 ;     915 			if(Terminal_cmd_correct() ==0) break;
+000618 940e 0581 	CALL _Terminal_cmd_correct
+00061a 30e0      	CPI  R30,0
+00061b f409      	BRNE _0x51
+00061c c32e      	RJMP _0x49
+                 ;     916 			UART_send_byte(PROG_OK);
+                 _0x51:
+00061d e4e1      	LDI  R30,LOW(65)
+00061e 93ea      	ST   -Y,R30
+00061f 940e 097f 	CALL _UART_send_byte
+                 ;     917 			if(JTAG_CheckProgMode() !=0) JTAG_LeaveProgMode();
+000621 940e 0218 	CALL _JTAG_CheckProgMode
+000623 30e0      	CPI  R30,0
+000624 f011      	BREQ _0x52
+000625 940e 0214 	CALL _JTAG_LeaveProgMode
+                 ;     918   			cResult =1;
+                 _0x52:
+000627 c322      	RJMP _0xAB
+                 ;     919 			break;
+                 ;     920     case PROG_JTAG_FLASH_PAGE_SIZE:
+                 _0x50:
+000628 38e8      	CPI  R30,LOW(0x88)
+000629 f519      	BRNE _0x53
+                 ;     921 			if(Terminal_data_load(2,&ucTerminal_memory_buff[0]) ==0) break;
+00062a e0e2      	LDI  R30,LOW(2)
+00062b e0f0      	LDI  R31,HIGH(2)
+00062c 93fa      	ST   -Y,R31
+00062d 93ea      	ST   -Y,R30
+00062e e6e0      	LDI  R30,LOW(_ucTerminal_memory_buff)
+00062f e0f1      	LDI  R31,HIGH(_ucTerminal_memory_buff)
+000630 93fa      	ST   -Y,R31
+000631 93ea      	ST   -Y,R30
+000632 940e 05ae 	CALL _Terminal_data_load
+000634 30e0      	CPI  R30,0
+000635 f409      	BRNE _0x54
+000636 c314      	RJMP _0x49
+                 ;     922 			if(Terminal_cmd_correct() ==0) break;
+                 _0x54:
+000637 940e 0581 	CALL _Terminal_cmd_correct
+000639 30e0      	CPI  R30,0
+00063a f409      	BRNE _0x55
+00063b c30f      	RJMP _0x49
+                 ;     923  			UART_send_byte(PROG_OK);
+                 _0x55:
+00063c e4e1      	LDI  R30,LOW(65)
+00063d 93ea      	ST   -Y,R30
+00063e 940e 097f 	CALL _UART_send_byte
+                 ;     924 			uiTerminal_size_flpage = ucTerminal_memory_buff[0];
+000640 9080 0160 	LDS  R8,_ucTerminal_memory_buff
+000642 2499      	CLR  R9
+                 ;     925 			uiTerminal_size_flpage = (uiTerminal_size_flpage << 8) | ucTerminal_memory_buff[1];
+000643 2df8      	MOV  R31,R8
+000644 e0e0      	LDI  R30,LOW(0)
+000645 01df      	MOVW R26,R30
+000646 91e0 0161 	__GETB1MN _ucTerminal_memory_buff,1
+000648 e0f0      	LDI  R31,0
+000649 2bea      	OR   R30,R26
+00064a 2bfb      	OR   R31,R27
+00064b 014f      	MOVW R8,R30
+                 ;     926 			cResult = 1;
+00064c c2fd      	RJMP _0xAB
+                 ;     927 			break;
+                 ;     928     case PROG_JTAG_EEPROM_PAGE_SIZE:
+                 _0x53:
+00064d 38e9      	CPI  R30,LOW(0x89)
+00064e f519      	BRNE _0x56
+                 ;     929 			if(Terminal_data_load(2,&ucTerminal_memory_buff[0]) ==0) break;
+00064f e0e2      	LDI  R30,LOW(2)
+000650 e0f0      	LDI  R31,HIGH(2)
+000651 93fa      	ST   -Y,R31
+000652 93ea      	ST   -Y,R30
+000653 e6e0      	LDI  R30,LOW(_ucTerminal_memory_buff)
+000654 e0f1      	LDI  R31,HIGH(_ucTerminal_memory_buff)
+000655 93fa      	ST   -Y,R31
+000656 93ea      	ST   -Y,R30
+000657 940e 05ae 	CALL _Terminal_data_load
+000659 30e0      	CPI  R30,0
+00065a f409      	BRNE _0x57
+00065b c2ef      	RJMP _0x49
+                 ;     930 			if(Terminal_cmd_correct() ==0) break;
+                 _0x57:
+00065c 940e 0581 	CALL _Terminal_cmd_correct
+00065e 30e0      	CPI  R30,0
+00065f f409      	BRNE _0x58
+000660 c2ea      	RJMP _0x49
+                 ;     931  		        UART_send_byte(PROG_OK);
+                 _0x58:
+000661 e4e1      	LDI  R30,LOW(65)
+000662 93ea      	ST   -Y,R30
+000663 940e 097f 	CALL _UART_send_byte
+                 ;     932 			uiTerminal_size_eepage = ucTerminal_memory_buff[0];
+000665 90a0 0160 	LDS  R10,_ucTerminal_memory_buff
+000667 24bb      	CLR  R11
+                 ;     933 			uiTerminal_size_eepage = (uiTerminal_size_eepage << 8) | ucTerminal_memory_buff[1];
+000668 2dfa      	MOV  R31,R10
+000669 e0e0      	LDI  R30,LOW(0)
+00066a 01df      	MOVW R26,R30
+00066b 91e0 0161 	__GETB1MN _ucTerminal_memory_buff,1
+00066d e0f0      	LDI  R31,0
+00066e 2bea      	OR   R30,R26
+00066f 2bfb      	OR   R31,R27
+000670 015f      	MOVW R10,R30
+                 ;     934 			cResult = 1;
+000671 c2d8      	RJMP _0xAB
+                 ;     935   			break;
+                 ;     936     case PROG_JTAG_READ_SIGNATURE:
+                 _0x56:
+000672 3be6      	CPI  R30,LOW(0xB6)
+000673 f5b1      	BRNE _0x59
+                 ;     937 			if(Terminal_cmd_correct() ==0) break;
+000674 940e 0581 	CALL _Terminal_cmd_correct
+000676 30e0      	CPI  R30,0
+000677 f409      	BRNE _0x5A
+000678 c2d2      	RJMP _0x49
+                 ;     938 			if(JTAG_CheckProgMode() ==0) break;
+                 _0x5A:
+000679 940e 0218 	CALL _JTAG_CheckProgMode
+00067b 30e0      	CPI  R30,0
+00067c f409      	BRNE _0x5B
+00067d c2cd      	RJMP _0x49
+                 ;     939 			UART_send_byte(PROG_OK);
+                 _0x5B:
+00067e e4e1      	LDI  R30,LOW(65)
+00067f 93ea      	ST   -Y,R30
+000680 940e 097f 	CALL _UART_send_byte
+                 ;     940   			ulDataLong = JTAG_ReadSignature();
+000682 940e 021a 	CALL _JTAG_ReadSignature
+000684 83ee
+000685 83ff
+000686 8768
+000687 8779      	__PUTD1S 6
+                 ;     941 			UART_send_byte(ulDataLong >>24);
+000688 81ae
+000689 81bf
+00068a 8588
+00068b 8599      	__GETD2S 6
+00068c e1e8      	LDI  R30,LOW(24)
+00068d 940e 09e1 	CALL __LSRD12
+00068f 93ea      	ST   -Y,R30
+000690 940e 097f 	CALL _UART_send_byte
+                 ;     942 			UART_send_byte(ulDataLong >>16);
+000692 81ee
+000693 81ff
+000694 8568
+000695 8579      	__GETD1S 6
+000696 940e 09f2 	CALL __LSRD16
+000698 93ea      	ST   -Y,R30
+000699 940e 097f 	CALL _UART_send_byte
+                 ;     943 			UART_send_byte(ulDataLong >>8);
+00069b 81ae
+00069c 81bf
+00069d 8588
+00069e 8599      	__GETD2S 6
+00069f e0e8      	LDI  R30,LOW(8)
+0006a0 940e 09e1 	CALL __LSRD12
+0006a2 93ea      	ST   -Y,R30
+0006a3 940e 097f 	CALL _UART_send_byte
+                 ;     944 			UART_send_byte(ulDataLong);
+0006a5 81ee      	LDD  R30,Y+6
+0006a6 93ea      	ST   -Y,R30
+0006a7 940e 097f 	CALL _UART_send_byte
+                 ;     945  		  	cResult =1;
+0006a9 c2a0      	RJMP _0xAB
+                 ;     946 			break;
+                 ;     947     case PROG_JTAG_READ_CALIBRATION:
+                 _0x59:
+0006aa 3be7      	CPI  R30,LOW(0xB7)
+0006ab f4a9      	BRNE _0x5C
+                 ;     948 			if(Terminal_cmd_correct() ==0) break;
+0006ac 940e 0581 	CALL _Terminal_cmd_correct
+0006ae 30e0      	CPI  R30,0
+0006af f409      	BRNE _0x5D
+0006b0 c29a      	RJMP _0x49
+                 ;     949 			if(JTAG_CheckProgMode() ==0) break;
+                 _0x5D:
+0006b1 940e 0218 	CALL _JTAG_CheckProgMode
+0006b3 30e0      	CPI  R30,0
+0006b4 f409      	BRNE _0x5E
+0006b5 c295      	RJMP _0x49
+                 ;     950  			UART_send_byte(PROG_OK);
+                 _0x5E:
+0006b6 e4e1      	LDI  R30,LOW(65)
+0006b7 93ea      	ST   -Y,R30
+0006b8 940e 097f 	CALL _UART_send_byte
+                 ;     951         		ucDataByte = JTAG_ReadCalibration();
+0006ba 940e 0291 	CALL _JTAG_ReadCalibration
+0006bc 2f3e      	MOV  R19,R30
+                 ;     952 			UART_send_byte(ucDataByte);
+0006bd 933a      	ST   -Y,R19
+0006be 940e 097f 	CALL _UART_send_byte
+                 ;     953  		  	cResult =1;
+0006c0 c289      	RJMP _0xAB
+                 ;     954         		break;
+                 ;     955     case PROG_JTAG_READ_FUSE_EXT:
+                 _0x5C:
+0006c1 3be4      	CPI  R30,LOW(0xB4)
+0006c2 f4a9      	BRNE _0x5F
+                 ;     956 			if(Terminal_cmd_correct() ==0) break;
+0006c3 940e 0581 	CALL _Terminal_cmd_correct
+0006c5 30e0      	CPI  R30,0
+0006c6 f409      	BRNE _0x60
+0006c7 c283      	RJMP _0x49
+                 ;     957 			if(JTAG_CheckProgMode() ==0) break;
+                 _0x60:
+0006c8 940e 0218 	CALL _JTAG_CheckProgMode
+0006ca 30e0      	CPI  R30,0
+0006cb f409      	BRNE _0x61
+0006cc c27e      	RJMP _0x49
+                 ;     958 			UART_send_byte(PROG_OK);
+                 _0x61:
+0006cd e4e1      	LDI  R30,LOW(65)
+0006ce 93ea      	ST   -Y,R30
+0006cf 940e 097f 	CALL _UART_send_byte
+                 ;     959         		ucDataByte = JTAG_ReadFuseExt();
+0006d1 940e 02ad 	CALL _JTAG_ReadFuseExt
+0006d3 2f3e      	MOV  R19,R30
+                 ;     960 			UART_send_byte(ucDataByte);
+0006d4 933a      	ST   -Y,R19
+0006d5 940e 097f 	CALL _UART_send_byte
+                 ;     961  		  	cResult =1;
+0006d7 c272      	RJMP _0xAB
+                 ;     962         		break;
+                 ;     963     case PROG_JTAG_WRITE_FUSE_EXT:
+                 _0x5F:
+0006d8 3ae4      	CPI  R30,LOW(0xA4)
+0006d9 f509      	BRNE _0x62
+                 ;     964 			if(Terminal_data_load(1,&ucTerminal_memory_buff[0]) ==0) break;
+0006da e0e1      	LDI  R30,LOW(1)
+0006db e0f0      	LDI  R31,HIGH(1)
+0006dc 93fa      	ST   -Y,R31
+0006dd 93ea      	ST   -Y,R30
+0006de e6e0      	LDI  R30,LOW(_ucTerminal_memory_buff)
+0006df e0f1      	LDI  R31,HIGH(_ucTerminal_memory_buff)
+0006e0 93fa      	ST   -Y,R31
+0006e1 93ea      	ST   -Y,R30
+0006e2 940e 05ae 	CALL _Terminal_data_load
+0006e4 30e0      	CPI  R30,0
+0006e5 f409      	BRNE _0x63
+0006e6 c264      	RJMP _0x49
+                 ;     965 			if(Terminal_cmd_correct() ==0) break;
+                 _0x63:
+0006e7 940e 0581 	CALL _Terminal_cmd_correct
+0006e9 30e0      	CPI  R30,0
+0006ea f409      	BRNE _0x64
+0006eb c25f      	RJMP _0x49
+                 ;     966 			if(JTAG_CheckProgMode() ==0) break;
+                 _0x64:
+0006ec 940e 0218 	CALL _JTAG_CheckProgMode
+0006ee 30e0      	CPI  R30,0
+0006ef f409      	BRNE _0x65
+0006f0 c25a      	RJMP _0x49
+                 ;     967 			UART_send_byte(PROG_OK);
+                 _0x65:
+0006f1 e4e1      	LDI  R30,LOW(65)
+0006f2 93ea      	ST   -Y,R30
+0006f3 940e 097f 	CALL _UART_send_byte
+                 ;     968             		JTAG_WriteFuseExt(ucTerminal_memory_buff[0]);
+0006f5 91e0 0160 	LDS  R30,_ucTerminal_memory_buff
+0006f7 93ea      	ST   -Y,R30
+0006f8 940e 02c3 	CALL _JTAG_WriteFuseExt
+                 ;     969 			cResult =1;
+0006fa c24f      	RJMP _0xAB
+                 ;     970 		        break;
+                 ;     971     case PROG_JTAG_READ_FUSE_HIGH:
+                 _0x62:
+0006fb 3be3      	CPI  R30,LOW(0xB3)
+0006fc f4a9      	BRNE _0x66
+                 ;     972 			if(Terminal_cmd_correct() !=0)
+0006fd 940e 0581 	CALL _Terminal_cmd_correct
+0006ff 30e0      	CPI  R30,0
+000700 f081      	BREQ _0x67
+                 ;     973                          {
+                 ;     974 			  if(JTAG_CheckProgMode() ==0) break;
+000701 940e 0218 	CALL _JTAG_CheckProgMode
+000703 30e0      	CPI  R30,0
+000704 f409      	BRNE _0x68
+000705 c245      	RJMP _0x49
+                 ;     975 			  UART_send_byte(PROG_OK);
+                 _0x68:
+000706 e4e1      	LDI  R30,LOW(65)
+000707 93ea      	ST   -Y,R30
+000708 940e 097f 	CALL _UART_send_byte
+                 ;     976         		  ucDataByte = JTAG_ReadFuseHigh();
+00070a 940e 02f0 	CALL _JTAG_ReadFuseHigh
+00070c 2f3e      	MOV  R19,R30
+                 ;     977 			  UART_send_byte(ucDataByte);
+00070d 933a      	ST   -Y,R19
+00070e 940e 097f 	CALL _UART_send_byte
+                 ;     978  		  	  cResult =1;
+000710 e011      	LDI  R17,LOW(1)
+                 ;     979 			 }
+                 ;     980         		break;
+                 _0x67:
+000711 c239      	RJMP _0x49
+                 ;     981     case PROG_JTAG_WRITE_FUSE_HIGH:
+                 _0x66:
+000712 3ae3      	CPI  R30,LOW(0xA3)
+000713 f509      	BRNE _0x69
+                 ;     982 			if(Terminal_data_load(1,&ucTerminal_memory_buff[0]) ==0) break;
+000714 e0e1      	LDI  R30,LOW(1)
+000715 e0f0      	LDI  R31,HIGH(1)
+000716 93fa      	ST   -Y,R31
+000717 93ea      	ST   -Y,R30
+000718 e6e0      	LDI  R30,LOW(_ucTerminal_memory_buff)
+000719 e0f1      	LDI  R31,HIGH(_ucTerminal_memory_buff)
+00071a 93fa      	ST   -Y,R31
+00071b 93ea      	ST   -Y,R30
+00071c 940e 05ae 	CALL _Terminal_data_load
+00071e 30e0      	CPI  R30,0
+00071f f409      	BRNE _0x6A
+000720 c22a      	RJMP _0x49
+                 ;     983 			if(Terminal_cmd_correct() ==0) break;
+                 _0x6A:
+000721 940e 0581 	CALL _Terminal_cmd_correct
+000723 30e0      	CPI  R30,0
+000724 f409      	BRNE _0x6B
+000725 c225      	RJMP _0x49
+                 ;     984 			if(JTAG_CheckProgMode() ==0) break;
+                 _0x6B:
+000726 940e 0218 	CALL _JTAG_CheckProgMode
+000728 30e0      	CPI  R30,0
+000729 f409      	BRNE _0x6C
+00072a c220      	RJMP _0x49
+                 ;     985 			UART_send_byte(PROG_OK);
+                 _0x6C:
+00072b e4e1      	LDI  R30,LOW(65)
+00072c 93ea      	ST   -Y,R30
+00072d 940e 097f 	CALL _UART_send_byte
+                 ;     986             		JTAG_WriteFuseHigh(ucTerminal_memory_buff[0]);
+00072f 91e0 0160 	LDS  R30,_ucTerminal_memory_buff
+000731 93ea      	ST   -Y,R30
+000732 940e 0306 	CALL _JTAG_WriteFuseHigh
+                 ;     987 			cResult =1;
+000734 c215      	RJMP _0xAB
+                 ;     988 		        break;
+                 ;     989     case PROG_JTAG_READ_FUSE_LOW:
+                 _0x69:
+000735 3be2      	CPI  R30,LOW(0xB2)
+000736 f4a9      	BRNE _0x6D
+                 ;     990 			if(Terminal_cmd_correct() ==0) break;
+000737 940e 0581 	CALL _Terminal_cmd_correct
+000739 30e0      	CPI  R30,0
+00073a f409      	BRNE _0x6E
+00073b c20f      	RJMP _0x49
+                 ;     991 		        if(JTAG_CheckProgMode() ==0) break;
+                 _0x6E:
+00073c 940e 0218 	CALL _JTAG_CheckProgMode
+00073e 30e0      	CPI  R30,0
+00073f f409      	BRNE _0x6F
+000740 c20a      	RJMP _0x49
+                 ;     992 			UART_send_byte(PROG_OK);
+                 _0x6F:
+000741 e4e1      	LDI  R30,LOW(65)
+000742 93ea      	ST   -Y,R30
+000743 940e 097f 	CALL _UART_send_byte
+                 ;     993         		ucDataByte = JTAG_ReadFuseLow();
+000745 940e 0333 	CALL _JTAG_ReadFuseLow
+000747 2f3e      	MOV  R19,R30
+                 ;     994 			UART_send_byte(ucDataByte);
+000748 933a      	ST   -Y,R19
+000749 940e 097f 	CALL _UART_send_byte
+                 ;     995  		  	cResult =1;
+00074b c1fe      	RJMP _0xAB
+                 ;     996         		break;
+                 ;     997     case PROG_JTAG_WRITE_FUSE_LOW:
+                 _0x6D:
+00074c 3ae2      	CPI  R30,LOW(0xA2)
+00074d f509      	BRNE _0x70
+                 ;     998 			if(Terminal_data_load(1,&ucTerminal_memory_buff[0]) ==0) break;
+00074e e0e1      	LDI  R30,LOW(1)
+00074f e0f0      	LDI  R31,HIGH(1)
+000750 93fa      	ST   -Y,R31
+000751 93ea      	ST   -Y,R30
+000752 e6e0      	LDI  R30,LOW(_ucTerminal_memory_buff)
+000753 e0f1      	LDI  R31,HIGH(_ucTerminal_memory_buff)
+000754 93fa      	ST   -Y,R31
+000755 93ea      	ST   -Y,R30
+000756 940e 05ae 	CALL _Terminal_data_load
+000758 30e0      	CPI  R30,0
+000759 f409      	BRNE _0x71
+00075a c1f0      	RJMP _0x49
+                 ;     999 			if(Terminal_cmd_correct() ==0) break;
+                 _0x71:
+00075b 940e 0581 	CALL _Terminal_cmd_correct
+00075d 30e0      	CPI  R30,0
+00075e f409      	BRNE _0x72
+00075f c1eb      	RJMP _0x49
+                 ;    1000 			if(JTAG_CheckProgMode() ==0) break;
+                 _0x72:
+000760 940e 0218 	CALL _JTAG_CheckProgMode
+000762 30e0      	CPI  R30,0
+000763 f409      	BRNE _0x73
+000764 c1e6      	RJMP _0x49
+                 ;    1001 			UART_send_byte(PROG_OK);
+                 _0x73:
+000765 e4e1      	LDI  R30,LOW(65)
+000766 93ea      	ST   -Y,R30
+000767 940e 097f 	CALL _UART_send_byte
+                 ;    1002             		JTAG_WriteFuseLow(ucTerminal_memory_buff[0]);
+000769 91e0 0160 	LDS  R30,_ucTerminal_memory_buff
+00076b 93ea      	ST   -Y,R30
+00076c 940e 0349 	CALL _JTAG_WriteFuseLow
+                 ;    1003 			cResult =1;
+00076e c1db      	RJMP _0xAB
+                 ;    1004 		        break;
+                 ;    1005     case PROG_JTAG_READ_LOCK:
+                 _0x70:
+00076f 3be5      	CPI  R30,LOW(0xB5)
+000770 f4a9      	BRNE _0x74
+                 ;    1006 			if(Terminal_cmd_correct() ==0) break;
+000771 940e 0581 	CALL _Terminal_cmd_correct
+000773 30e0      	CPI  R30,0
+000774 f409      	BRNE _0x75
+000775 c1d5      	RJMP _0x49
+                 ;    1007 			if(JTAG_CheckProgMode() ==0) break;
+                 _0x75:
+000776 940e 0218 	CALL _JTAG_CheckProgMode
+000778 30e0      	CPI  R30,0
+000779 f409      	BRNE _0x76
+00077a c1d0      	RJMP _0x49
+                 ;    1008 			UART_send_byte(PROG_OK);
+                 _0x76:
+00077b e4e1      	LDI  R30,LOW(65)
+00077c 93ea      	ST   -Y,R30
+00077d 940e 097f 	CALL _UART_send_byte
+                 ;    1009           		ucDataByte = JTAG_ReadLock();
+00077f 940e 0376 	CALL _JTAG_ReadLock
+000781 2f3e      	MOV  R19,R30
+                 ;    1010 			UART_send_byte(ucDataByte);
+000782 933a      	ST   -Y,R19
+000783 940e 097f 	CALL _UART_send_byte
+                 ;    1011  		  	cResult =1;
+000785 c1c4      	RJMP _0xAB
+                 ;    1012         		break;
+                 ;    1013     case PROG_JTAG_WRITE_LOCK:
+                 _0x74:
+000786 3ae5      	CPI  R30,LOW(0xA5)
+000787 f501      	BRNE _0x77
+                 ;    1014 			if(Terminal_data_load(1,&ucTerminal_memory_buff[0]) ==0)
+000788 e0e1      	LDI  R30,LOW(1)
+000789 e0f0      	LDI  R31,HIGH(1)
+00078a 93fa      	ST   -Y,R31
+00078b 93ea      	ST   -Y,R30
+00078c e6e0      	LDI  R30,LOW(_ucTerminal_memory_buff)
+00078d e0f1      	LDI  R31,HIGH(_ucTerminal_memory_buff)
+00078e 93fa      	ST   -Y,R31
+00078f 93ea      	ST   -Y,R30
+000790 940e 05ae 	CALL _Terminal_data_load
+000792 30e0      	CPI  R30,0
+000793 f429      	BRNE _0x78
+                 ;    1015 			if(Terminal_cmd_correct() ==0) break;
+000794 940e 0581 	CALL _Terminal_cmd_correct
+000796 30e0      	CPI  R30,0
+000797 f409      	BRNE _0x79
+000798 c1b2      	RJMP _0x49
+                 ;    1016 			if(JTAG_CheckProgMode() ==0) break;
+                 _0x79:
+                 _0x78:
+000799 940e 0218 	CALL _JTAG_CheckProgMode
+00079b 30e0      	CPI  R30,0
+00079c f409      	BRNE _0x7A
+00079d c1ad      	RJMP _0x49
+                 ;    1017 			UART_send_byte(PROG_OK);
+                 _0x7A:
+00079e e4e1      	LDI  R30,LOW(65)
+00079f 93ea      	ST   -Y,R30
+0007a0 940e 097f 	CALL _UART_send_byte
+                 ;    1018             		JTAG_WriteLock(ucTerminal_memory_buff[0]);
+0007a2 91e0 0160 	LDS  R30,_ucTerminal_memory_buff
+0007a4 93ea      	ST   -Y,R30
+0007a5 940e 038d 	CALL _JTAG_WriteLock
+                 ;    1019 			cResult =1;
+0007a7 c1a2      	RJMP _0xAB
+                 ;    1020 		        break;
+                 ;    1021     case PROG_JTAG_CHIP_ERASE:
+                 _0x77:
+0007a8 3ae6      	CPI  R30,LOW(0xA6)
+0007a9 f489      	BRNE _0x7B
+                 ;    1022 			if(Terminal_cmd_correct() ==0) break;
+0007aa 940e 0581 	CALL _Terminal_cmd_correct
+0007ac 30e0      	CPI  R30,0
+0007ad f409      	BRNE _0x7C
+0007ae c19c      	RJMP _0x49
+                 ;    1023 			if(JTAG_CheckProgMode() ==0) break;
+                 _0x7C:
+0007af 940e 0218 	CALL _JTAG_CheckProgMode
+0007b1 30e0      	CPI  R30,0
+0007b2 f409      	BRNE _0x7D
+0007b3 c197      	RJMP _0x49
+                 ;    1024 			UART_send_byte(PROG_OK);
+                 _0x7D:
+0007b4 e4e1      	LDI  R30,LOW(65)
+0007b5 93ea      	ST   -Y,R30
+0007b6 940e 097f 	CALL _UART_send_byte
+                 ;    1025           		JTAG_ChipErase();
+0007b8 940e 03bd 	CALL _JTAG_ChipErase
+                 ;    1026 			cResult =1;
+0007ba c18f      	RJMP _0xAB
+                 ;    1027         		break;
+                 ;    1028     case PROG_JTAG_READ_EEPROM:
+                 _0x7B:
+0007bb 3be1      	CPI  R30,LOW(0xB1)
+0007bc f011      	BREQ PC+3
+0007bd 940c 081f 	JMP _0x7E
+                 ;    1029 			if(Terminal_data_load(4,&ucTerminal_memory_buff[0]) ==0) break;
+0007bf e0e4      	LDI  R30,LOW(4)
+0007c0 e0f0      	LDI  R31,HIGH(4)
+0007c1 93fa      	ST   -Y,R31
+0007c2 93ea      	ST   -Y,R30
+0007c3 e6e0      	LDI  R30,LOW(_ucTerminal_memory_buff)
+0007c4 e0f1      	LDI  R31,HIGH(_ucTerminal_memory_buff)
+0007c5 93fa      	ST   -Y,R31
+0007c6 93ea      	ST   -Y,R30
+0007c7 940e 05ae 	CALL _Terminal_data_load
+0007c9 30e0      	CPI  R30,0
+0007ca f409      	BRNE _0x7F
+0007cb c17f      	RJMP _0x49
+                 ;    1030 			if(Terminal_cmd_correct() ==0) break;
+                 _0x7F:
+0007cc 940e 0581 	CALL _Terminal_cmd_correct
+0007ce 30e0      	CPI  R30,0
+0007cf f409      	BRNE _0x80
+0007d0 c17a      	RJMP _0x49
+                 ;    1031 			if(JTAG_CheckProgMode() ==0) break;
+                 _0x80:
+0007d1 940e 0218 	CALL _JTAG_CheckProgMode
+0007d3 30e0      	CPI  R30,0
+0007d4 f409      	BRNE _0x81
+0007d5 c175      	RJMP _0x49
+                 ;    1032 			uiAddr = ucTerminal_memory_buff[1];
+                 _0x81:
+0007d6 91e0 0161 	__GETB1MN _ucTerminal_memory_buff,1
+0007d8 e0f0      	LDI  R31,0
+0007d9 87ec      	STD  Y+12,R30
+0007da 87fd      	STD  Y+12+1,R31
+                 ;    1033 			uiAddr = (uiAddr << 8) | ucTerminal_memory_buff[0];
+0007db 85fc      	LDD  R31,Y+12
+0007dc e0e0      	LDI  R30,LOW(0)
+0007dd 01df      	MOVW R26,R30
+0007de 91e0 0160 	LDS  R30,_ucTerminal_memory_buff
+0007e0 e0f0      	LDI  R31,0
+0007e1 2bea      	OR   R30,R26
+0007e2 2bfb      	OR   R31,R27
+0007e3 87ec      	STD  Y+12,R30
+0007e4 87fd      	STD  Y+12+1,R31
+                 ;    1034 			uiCount = ucTerminal_memory_buff[3];
+0007e5 91e0 0163 	__GETB1MN _ucTerminal_memory_buff,3
+0007e7 e0f0      	LDI  R31,0
+0007e8 87ea      	STD  Y+10,R30
+0007e9 87fb      	STD  Y+10+1,R31
+                 ;    1035 			uiCount = (uiCount << 8) | ucTerminal_memory_buff[2];
+0007ea 85fa      	LDD  R31,Y+10
+0007eb e0e0      	LDI  R30,LOW(0)
+0007ec 01df      	MOVW R26,R30
+0007ed 91e0 0162 	__GETB1MN _ucTerminal_memory_buff,2
+0007ef e0f0      	LDI  R31,0
+0007f0 2bea      	OR   R30,R26
+0007f1 2bfb      	OR   R31,R27
+0007f2 87ea      	STD  Y+10,R30
+0007f3 87fb      	STD  Y+10+1,R31
+                 ;    1036 			if(uiCount > uiTerminal_size_eepage) break;
+0007f4 85aa      	LDD  R26,Y+10
+0007f5 85bb      	LDD  R27,Y+10+1
+0007f6 16aa      	CP   R10,R26
+0007f7 06bb      	CPC  R11,R27
+0007f8 f408      	BRSH _0x82
+0007f9 c151      	RJMP _0x49
+                 ;    1037 			UART_send_byte(PROG_OK);
+                 _0x82:
+0007fa e4e1      	LDI  R30,LOW(65)
+0007fb 93ea      	ST   -Y,R30
+0007fc 940e 097f 	CALL _UART_send_byte
+                 ;    1038 			JTAG_ReadEEpromPage(uiAddr, uiCount, &ucTerminal_memory_buff[0]);
+0007fe 85ec      	LDD  R30,Y+12
+0007ff 85fd      	LDD  R31,Y+12+1
+000800 93fa      	ST   -Y,R31
+000801 93ea      	ST   -Y,R30
+000802 85ec      	LDD  R30,Y+12
+000803 85fd      	LDD  R31,Y+12+1
+000804 93fa      	ST   -Y,R31
+000805 93ea      	ST   -Y,R30
+000806 e6e0      	LDI  R30,LOW(_ucTerminal_memory_buff)
+000807 e0f1      	LDI  R31,HIGH(_ucTerminal_memory_buff)
+000808 93fa      	ST   -Y,R31
+000809 93ea      	ST   -Y,R30
+00080a 940e 03e1 	CALL _JTAG_ReadEEpromPage
+                 ;    1039 			for(i =0; i < uiCount; i++) UART_send_byte(ucTerminal_memory_buff[i]);
+00080c e040
+00080d e050      	__GETWRN 20,21,0
+                 _0x84:
+00080e 85ea      	LDD  R30,Y+10
+00080f 85fb      	LDD  R31,Y+10+1
+000810 174e      	CP   R20,R30
+000811 075f      	CPC  R21,R31
+000812 f458      	BRSH _0x85
+000813 e6a0      	LDI  R26,LOW(_ucTerminal_memory_buff)
+000814 e0b1      	LDI  R27,HIGH(_ucTerminal_memory_buff)
+000815 0fa4      	ADD  R26,R20
+000816 1fb5      	ADC  R27,R21
+000817 91ec      	LD   R30,X
+000818 93ea      	ST   -Y,R30
+000819 940e 097f 	CALL _UART_send_byte
+                 ;    1040 			cResult =1;
+00081b 5f4f
+00081c 4f5f      	__ADDWRN 20,21,1
+00081d cff0      	RJMP _0x84
+                 _0x85:
+00081e c12b      	RJMP _0xAB
+                 ;    1041         		break;
+                 ;    1042     case PROG_JTAG_WRITE_EEPROM:
+                 _0x7E:
+00081f 3ae1      	CPI  R30,LOW(0xA1)
+000820 f011      	BREQ PC+3
+000821 940c 0882 	JMP _0x86
+                 ;    1043 			if(Terminal_data_load(4,&ucTerminal_memory_buff[0]) ==0) break;
+000823 e0e4      	LDI  R30,LOW(4)
+000824 e0f0      	LDI  R31,HIGH(4)
+000825 93fa      	ST   -Y,R31
+000826 93ea      	ST   -Y,R30
+000827 e6e0      	LDI  R30,LOW(_ucTerminal_memory_buff)
+000828 e0f1      	LDI  R31,HIGH(_ucTerminal_memory_buff)
+000829 93fa      	ST   -Y,R31
+00082a 93ea      	ST   -Y,R30
+00082b 940e 05ae 	CALL _Terminal_data_load
+00082d 30e0      	CPI  R30,0
+00082e f409      	BRNE _0x87
+00082f c11b      	RJMP _0x49
+                 ;    1044 			if(Terminal_cmd_correct() ==0) break;
+                 _0x87:
+000830 940e 0581 	CALL _Terminal_cmd_correct
+000832 30e0      	CPI  R30,0
+000833 f409      	BRNE _0x88
+000834 c116      	RJMP _0x49
+                 ;    1045 			if(JTAG_CheckProgMode() ==0) break;
+                 _0x88:
+000835 940e 0218 	CALL _JTAG_CheckProgMode
+000837 30e0      	CPI  R30,0
+000838 f409      	BRNE _0x89
+000839 c111      	RJMP _0x49
+                 ;    1046 			uiAddr = ucTerminal_memory_buff[1];
+                 _0x89:
+00083a 91e0 0161 	__GETB1MN _ucTerminal_memory_buff,1
+00083c e0f0      	LDI  R31,0
+00083d 87ec      	STD  Y+12,R30
+00083e 87fd      	STD  Y+12+1,R31
+                 ;    1047 			uiAddr = (uiAddr << 8) | ucTerminal_memory_buff[0];
+00083f 85fc      	LDD  R31,Y+12
+000840 e0e0      	LDI  R30,LOW(0)
+000841 01df      	MOVW R26,R30
+000842 91e0 0160 	LDS  R30,_ucTerminal_memory_buff
+000844 e0f0      	LDI  R31,0
+000845 2bea      	OR   R30,R26
+000846 2bfb      	OR   R31,R27
+000847 87ec      	STD  Y+12,R30
+000848 87fd      	STD  Y+12+1,R31
+                 ;    1048 			uiCount = ucTerminal_memory_buff[3];
+000849 91e0 0163 	__GETB1MN _ucTerminal_memory_buff,3
+00084b e0f0      	LDI  R31,0
+00084c 87ea      	STD  Y+10,R30
+00084d 87fb      	STD  Y+10+1,R31
+                 ;    1049 			uiCount = (uiCount << 8) | ucTerminal_memory_buff[2];
+00084e 85fa      	LDD  R31,Y+10
+00084f e0e0      	LDI  R30,LOW(0)
+000850 01df      	MOVW R26,R30
+000851 91e0 0162 	__GETB1MN _ucTerminal_memory_buff,2
+000853 e0f0      	LDI  R31,0
+000854 2bea      	OR   R30,R26
+000855 2bfb      	OR   R31,R27
+000856 87ea      	STD  Y+10,R30
+000857 87fb      	STD  Y+10+1,R31
+                 ;    1050 			if(uiCount > uiTerminal_size_eepage) break;
+000858 85aa      	LDD  R26,Y+10
+000859 85bb      	LDD  R27,Y+10+1
+00085a 16aa      	CP   R10,R26
+00085b 06bb      	CPC  R11,R27
+00085c f408      	BRSH _0x8A
+00085d c0ed      	RJMP _0x49
+                 ;    1051 			UART_send_byte(PROG_OK);
+                 _0x8A:
+00085e e4e1      	LDI  R30,LOW(65)
+00085f 93ea      	ST   -Y,R30
+000860 940e 097f 	CALL _UART_send_byte
+                 ;    1052 			if(Terminal_data_load(uiCount,&ucTerminal_memory_buff[0]) ==0) break;
+000862 85ea      	LDD  R30,Y+10
+000863 85fb      	LDD  R31,Y+10+1
+000864 93fa      	ST   -Y,R31
+000865 93ea      	ST   -Y,R30
+000866 e6e0      	LDI  R30,LOW(_ucTerminal_memory_buff)
+000867 e0f1      	LDI  R31,HIGH(_ucTerminal_memory_buff)
+000868 93fa      	ST   -Y,R31
+000869 93ea      	ST   -Y,R30
+00086a 940e 05ae 	CALL _Terminal_data_load
+00086c 30e0      	CPI  R30,0
+00086d f409      	BRNE _0x8B
+00086e c0dc      	RJMP _0x49
+                 ;    1053 			UART_send_byte(PROG_OK);
+                 _0x8B:
+00086f e4e1      	LDI  R30,LOW(65)
+000870 93ea      	ST   -Y,R30
+000871 940e 097f 	CALL _UART_send_byte
+                 ;    1054 			JTAG_WriteEEpromPage(uiAddr, uiCount, &ucTerminal_memory_buff[0]);
+000873 85ec      	LDD  R30,Y+12
+000874 85fd      	LDD  R31,Y+12+1
+000875 93fa      	ST   -Y,R31
+000876 93ea      	ST   -Y,R30
+000877 85ec      	LDD  R30,Y+12
+000878 85fd      	LDD  R31,Y+12+1
+000879 93fa      	ST   -Y,R31
+00087a 93ea      	ST   -Y,R30
+00087b e6e0      	LDI  R30,LOW(_ucTerminal_memory_buff)
+00087c e0f1      	LDI  R31,HIGH(_ucTerminal_memory_buff)
+00087d 93fa      	ST   -Y,R31
+00087e 93ea      	ST   -Y,R30
+00087f 940e 042b 	CALL _JTAG_WriteEEpromPage
+                 ;    1055 			cResult =1;
+000881 c0c8      	RJMP _0xAB
+                 ;    1056         		break;
+                 ;    1057     case PROG_JTAG_READ_FLASH:
+                 _0x86:
+000882 3be0      	CPI  R30,LOW(0xB0)
+000883 f011      	BREQ PC+3
+000884 940c 08e8 	JMP _0x8C
+                 ;    1058 			if(Terminal_data_load(4,&ucTerminal_memory_buff[0]) ==0) break;
+000886 e0e4      	LDI  R30,LOW(4)
+000887 e0f0      	LDI  R31,HIGH(4)
+000888 93fa      	ST   -Y,R31
+000889 93ea      	ST   -Y,R30
+00088a e6e0      	LDI  R30,LOW(_ucTerminal_memory_buff)
+00088b e0f1      	LDI  R31,HIGH(_ucTerminal_memory_buff)
+00088c 93fa      	ST   -Y,R31
+00088d 93ea      	ST   -Y,R30
+00088e 940e 05ae 	CALL _Terminal_data_load
+000890 30e0      	CPI  R30,0
+000891 f409      	BRNE _0x8D
+000892 c0b8      	RJMP _0x49
+                 ;    1059 			if(Terminal_cmd_correct() ==0) break;
+                 _0x8D:
+000893 940e 0581 	CALL _Terminal_cmd_correct
+000895 30e0      	CPI  R30,0
+000896 f409      	BRNE _0x8E
+000897 c0b3      	RJMP _0x49
+                 ;    1060 			if(JTAG_CheckProgMode() ==0) break;
+                 _0x8E:
+000898 940e 0218 	CALL _JTAG_CheckProgMode
+00089a 30e0      	CPI  R30,0
+00089b f409      	BRNE _0x8F
+00089c c0ae      	RJMP _0x49
+                 ;    1061 			uiAddr = ucTerminal_memory_buff[1];
+                 _0x8F:
+00089d 91e0 0161 	__GETB1MN _ucTerminal_memory_buff,1
+00089f e0f0      	LDI  R31,0
+0008a0 87ec      	STD  Y+12,R30
+0008a1 87fd      	STD  Y+12+1,R31
+                 ;    1062 			uiAddr = (uiAddr << 8) | ucTerminal_memory_buff[0];
+0008a2 85fc      	LDD  R31,Y+12
+0008a3 e0e0      	LDI  R30,LOW(0)
+0008a4 01df      	MOVW R26,R30
+0008a5 91e0 0160 	LDS  R30,_ucTerminal_memory_buff
+0008a7 e0f0      	LDI  R31,0
+0008a8 2bea      	OR   R30,R26
+0008a9 2bfb      	OR   R31,R27
+0008aa 87ec      	STD  Y+12,R30
+0008ab 87fd      	STD  Y+12+1,R31
+                 ;    1063 			uiCount = ucTerminal_memory_buff[3];
+0008ac 91e0 0163 	__GETB1MN _ucTerminal_memory_buff,3
+0008ae e0f0      	LDI  R31,0
+0008af 87ea      	STD  Y+10,R30
+0008b0 87fb      	STD  Y+10+1,R31
+                 ;    1064 			uiCount = (uiCount << 8) | ucTerminal_memory_buff[2];
+0008b1 85fa      	LDD  R31,Y+10
+0008b2 e0e0      	LDI  R30,LOW(0)
+0008b3 01df      	MOVW R26,R30
+0008b4 91e0 0162 	__GETB1MN _ucTerminal_memory_buff,2
+0008b6 e0f0      	LDI  R31,0
+0008b7 2bea      	OR   R30,R26
+0008b8 2bfb      	OR   R31,R27
+0008b9 87ea      	STD  Y+10,R30
+0008ba 87fb      	STD  Y+10+1,R31
+                 ;    1065 			if(uiCount > uiTerminal_size_flpage) break;
+0008bb 85aa      	LDD  R26,Y+10
+0008bc 85bb      	LDD  R27,Y+10+1
+0008bd 168a      	CP   R8,R26
+0008be 069b      	CPC  R9,R27
+0008bf f408      	BRSH _0x90
+0008c0 c08a      	RJMP _0x49
+                 ;    1066 			UART_send_byte(PROG_OK);
+                 _0x90:
+0008c1 e4e1      	LDI  R30,LOW(65)
+0008c2 93ea      	ST   -Y,R30
+0008c3 940e 097f 	CALL _UART_send_byte
+                 ;    1067 			JTAG_ReadFlashPage(uiAddr, uiCount, &ucTerminal_memory_buff[0]);
+0008c5 85ec      	LDD  R30,Y+12
+0008c6 85fd      	LDD  R31,Y+12+1
+0008c7 93fa      	ST   -Y,R31
+0008c8 93ea      	ST   -Y,R30
+0008c9 85ec      	LDD  R30,Y+12
+0008ca 85fd      	LDD  R31,Y+12+1
+0008cb 93fa      	ST   -Y,R31
+0008cc 93ea      	ST   -Y,R30
+0008cd e6e0      	LDI  R30,LOW(_ucTerminal_memory_buff)
+0008ce e0f1      	LDI  R31,HIGH(_ucTerminal_memory_buff)
+0008cf 93fa      	ST   -Y,R31
+0008d0 93ea      	ST   -Y,R30
+0008d1 940e 0499 	CALL _JTAG_ReadFlashPage
+                 ;    1068 			for(i =0; i < (uiCount * 2); i++) UART_send_byte(ucTerminal_memory_buff[i]);
+0008d3 e040
+0008d4 e050      	__GETWRN 20,21,0
+                 _0x92:
+0008d5 85ea      	LDD  R30,Y+10
+0008d6 85fb      	LDD  R31,Y+10+1
+0008d7 0fee      	LSL  R30
+0008d8 1fff      	ROL  R31
+0008d9 174e      	CP   R20,R30
+0008da 075f      	CPC  R21,R31
+0008db f458      	BRSH _0x93
+0008dc e6a0      	LDI  R26,LOW(_ucTerminal_memory_buff)
+0008dd e0b1      	LDI  R27,HIGH(_ucTerminal_memory_buff)
+0008de 0fa4      	ADD  R26,R20
+0008df 1fb5      	ADC  R27,R21
+0008e0 91ec      	LD   R30,X
+0008e1 93ea      	ST   -Y,R30
+0008e2 940e 097f 	CALL _UART_send_byte
+                 ;    1069 			cResult =1;
+0008e4 5f4f
+0008e5 4f5f      	__ADDWRN 20,21,1
+0008e6 cfee      	RJMP _0x92
+                 _0x93:
+0008e7 c062      	RJMP _0xAB
+                 ;    1070         		break;
+                 ;    1071     case PROG_JTAG_WRITE_FLASH:
+                 _0x8C:
+0008e8 3ae0      	CPI  R30,LOW(0xA0)
+0008e9 f011      	BREQ PC+3
+0008ea 940c 094b 	JMP _0x49
+                 ;    1072 			if(Terminal_data_load(4,&ucTerminal_memory_buff[0]) ==0) break;
+0008ec e0e4      	LDI  R30,LOW(4)
+0008ed e0f0      	LDI  R31,HIGH(4)
+0008ee 93fa      	ST   -Y,R31
+0008ef 93ea      	ST   -Y,R30
+0008f0 e6e0      	LDI  R30,LOW(_ucTerminal_memory_buff)
+0008f1 e0f1      	LDI  R31,HIGH(_ucTerminal_memory_buff)
+0008f2 93fa      	ST   -Y,R31
+0008f3 93ea      	ST   -Y,R30
+0008f4 940e 05ae 	CALL _Terminal_data_load
+0008f6 30e0      	CPI  R30,0
+0008f7 f409      	BRNE _0x95
+0008f8 c052      	RJMP _0x49
+                 ;    1073 			if(Terminal_cmd_correct() ==0) break;
+                 _0x95:
+0008f9 940e 0581 	CALL _Terminal_cmd_correct
+0008fb 30e0      	CPI  R30,0
+0008fc f409      	BRNE _0x96
+0008fd c04d      	RJMP _0x49
+                 ;    1074 			if(JTAG_CheckProgMode() ==0) break;
+                 _0x96:
+0008fe 940e 0218 	CALL _JTAG_CheckProgMode
+000900 30e0      	CPI  R30,0
+000901 f409      	BRNE _0x97
+000902 c048      	RJMP _0x49
+                 ;    1075 			uiAddr = ucTerminal_memory_buff[1];
+                 _0x97:
+000903 91e0 0161 	__GETB1MN _ucTerminal_memory_buff,1
+000905 e0f0      	LDI  R31,0
+000906 87ec      	STD  Y+12,R30
+000907 87fd      	STD  Y+12+1,R31
+                 ;    1076 			uiAddr = (uiAddr << 8) | ucTerminal_memory_buff[0];
+000908 85fc      	LDD  R31,Y+12
+000909 e0e0      	LDI  R30,LOW(0)
+00090a 01df      	MOVW R26,R30
+00090b 91e0 0160 	LDS  R30,_ucTerminal_memory_buff
+00090d e0f0      	LDI  R31,0
+00090e 2bea      	OR   R30,R26
+00090f 2bfb      	OR   R31,R27
+000910 87ec      	STD  Y+12,R30
+000911 87fd      	STD  Y+12+1,R31
+                 ;    1077 			uiCount = ucTerminal_memory_buff[3];
+000912 91e0 0163 	__GETB1MN _ucTerminal_memory_buff,3
+000914 e0f0      	LDI  R31,0
+000915 87ea      	STD  Y+10,R30
+000916 87fb      	STD  Y+10+1,R31
+                 ;    1078 			uiCount = (uiCount << 8) | ucTerminal_memory_buff[2];
+000917 85fa      	LDD  R31,Y+10
+000918 e0e0      	LDI  R30,LOW(0)
+000919 01df      	MOVW R26,R30
+00091a 91e0 0162 	__GETB1MN _ucTerminal_memory_buff,2
+00091c e0f0      	LDI  R31,0
+00091d 2bea      	OR   R30,R26
+00091e 2bfb      	OR   R31,R27
+00091f 87ea      	STD  Y+10,R30
+000920 87fb      	STD  Y+10+1,R31
+                 ;    1079 			if(uiCount > uiTerminal_size_flpage) break;
+000921 85aa      	LDD  R26,Y+10
+000922 85bb      	LDD  R27,Y+10+1
+000923 168a      	CP   R8,R26
+000924 069b      	CPC  R9,R27
+000925 f128      	BRLO _0x49
+                 ;    1080 			UART_send_byte(PROG_OK);
+000926 e4e1      	LDI  R30,LOW(65)
+000927 93ea      	ST   -Y,R30
+000928 940e 097f 	CALL _UART_send_byte
+                 ;    1081 			if(Terminal_data_load(uiCount * 2,&ucTerminal_memory_buff[0]) ==0) break;
+00092a 85ea      	LDD  R30,Y+10
+00092b 85fb      	LDD  R31,Y+10+1
+00092c 0fee      	LSL  R30
+00092d 1fff      	ROL  R31
+00092e 93fa      	ST   -Y,R31
+00092f 93ea      	ST   -Y,R30
+000930 e6e0      	LDI  R30,LOW(_ucTerminal_memory_buff)
+000931 e0f1      	LDI  R31,HIGH(_ucTerminal_memory_buff)
+000932 93fa      	ST   -Y,R31
+000933 93ea      	ST   -Y,R30
+000934 940e 05ae 	CALL _Terminal_data_load
+000936 30e0      	CPI  R30,0
+000937 f099      	BREQ _0x49
+                 ;    1082 			UART_send_byte(PROG_OK);
+000938 e4e1      	LDI  R30,LOW(65)
+000939 93ea      	ST   -Y,R30
+00093a 940e 097f 	CALL _UART_send_byte
+                 ;    1083 			JTAG_WriteFlashPage(uiAddr, uiCount, &ucTerminal_memory_buff[0]);
+00093c 85ec      	LDD  R30,Y+12
+00093d 85fd      	LDD  R31,Y+12+1
+00093e 93fa      	ST   -Y,R31
+00093f 93ea      	ST   -Y,R30
+000940 85ec      	LDD  R30,Y+12
+000941 85fd      	LDD  R31,Y+12+1
+000942 93fa      	ST   -Y,R31
+000943 93ea      	ST   -Y,R30
+000944 e6e0      	LDI  R30,LOW(_ucTerminal_memory_buff)
+000945 e0f1      	LDI  R31,HIGH(_ucTerminal_memory_buff)
+000946 93fa      	ST   -Y,R31
+000947 93ea      	ST   -Y,R30
+000948 940e 04f0 	CALL _JTAG_WriteFlashPage
+                 ;    1084 			cResult =1;
+                 _0xAB:
+00094a e011      	LDI  R17,LOW(1)
+                 ;    1085 	       		break;
+                 ;    1086     }
+                 _0x49:
+                 ;    1087   CPU_led_state(0);
+00094b e0e0      	LDI  R30,LOW(0)
+00094c 93ea      	ST   -Y,R30
+00094d 940e 0078 	CALL _CPU_led_state
+                 ;    1088   if(cResult !=0) UART_send_byte(PROG_OK);
+00094f 3010      	CPI  R17,0
+000950 f011      	BREQ _0x9A
+000951 e4e1      	LDI  R30,LOW(65)
+000952 c001      	RJMP _0xAC
+                 ;    1089   else UART_send_byte(PROG_ERROR);
+                 _0x9A:
+000953 e4e5      	LDI  R30,LOW(69)
+                 _0xAC:
+000954 93ea      	ST   -Y,R30
+000955 940e 097f 	CALL _UART_send_byte
+                 ;    1090 }
+                 _0xA5:
+000957 940e 0a03 	CALL __LOADLOCR6
+000959 962e      	ADIW R28,14
+00095a 9508      	RET
+                 ;    1091 //----------------------------------------------------------------------------------------------------------------------------
+                 ;    1092 //Mick Laboratory, Калуга 2014
+                 ;    1093 //uart.c  - модуль обсуживания  приемо-передатчика UART
+                 ;    1094 //Тип микроконтроллера: atmega16a
+                 ;    1095 //Автор: Mick (Тарасов Михаил)
+                 ;    1096 //Версия модуля: 1.00 - 13 марта 2014
+                 ;    1097 //----------------------------------------------------------------------------------------------------------------------------
+                 ;    1098 #include "main.h"
+                 ;    1099 	#ifndef __SLEEP_DEFINED__
+                 	#ifndef __SLEEP_DEFINED__
+                 	#endif
+                 ;    1110 
+                 ;    1111 #define UART_LEN_INBUFFER	0x3F                    //размер входного буфера 64 байта
+                 ;    1112 #define UART_LEN_OUTBUFFER	0x3F                    //размер выходного буфера 64 байта
+                 ;    1113 
+                 ;    1114 //------------------------------------------------------------------
+                 ;    1115 //Описание: переменные UART
+                 ;    1116 //------------------------------------------------------------------
+                 ;    1117  unsigned char ucUART_receive_rdmarker;			//маркер буфера
+                 ;    1118  unsigned char ucUART_receive_wrmarker;			//маркер буфера
+                 ;    1119  unsigned char ucUART_inbuf[UART_LEN_INBUFFER +1];		//буфер принимаемой команды
+                 
+                 	.DSEG
+                 _ucUART_inbuf:
+000260           	.BYTE 0x40
+                 ;    1120 
+                 ;    1121  unsigned char ucUART_transmit_rdmarker;		//маркер буфера
+                 _ucUART_transmit_rdmarker:
+0002a0           	.BYTE 0x1
+                 ;    1122  unsigned char ucUART_transmit_wrmarker;		//маркер буфера
+                 _ucUART_transmit_wrmarker:
+0002a1           	.BYTE 0x1
+                 ;    1123  unsigned char ucUART_outbuf[UART_LEN_OUTBUFFER +1];	//буфер принимаемой команды
+                 _ucUART_outbuf:
+0002a2           	.BYTE 0x40
+                 ;    1124 //----------------------------------------------------------------------
+                 ;    1125 // описание:   Инициализация переменных канала UART
+                 ;    1126 // параметры:  нет
+                 ;    1127 // возвращаемое  значение:   нет
+                 ;    1128 //----------------------------------------------------------------------
+                 ;    1129 void UART_init(void)
+                 ;    1130 {
+                 
+                 	.CSEG
+                 _UART_init:
+                 ;    1131  UCSRB  = 0x98;
+00095b e9e8      	LDI  R30,LOW(152)
+00095c b9ea      	OUT  0xA,R30
+                 ;    1132  UCSRC  = 0x86;						// 1 стоповых бит, без четности
+00095d e8e6      	LDI  R30,LOW(134)
+00095e bde0      	OUT  0x20,R30
+                 ;    1133  UBRRH  = 0;
+00095f e0e0      	LDI  R30,LOW(0)
+000960 bde0      	OUT  0x20,R30
+                 ;    1134  UBRRL  = 0x07;                                  	// UART 19200 (0x17 = 23)
+000961 e0e7      	LDI  R30,LOW(7)
+000962 b9e9      	OUT  0x9,R30
+                 ;    1135  ucUART_transmit_wrmarker =0;
+000963 e0e0      	LDI  R30,LOW(0)
+000964 93e0 02a1 	STS  _ucUART_transmit_wrmarker,R30
+                 ;    1136  ucUART_transmit_rdmarker =0;				//длина пакета
+000966 93e0 02a0 	STS  _ucUART_transmit_rdmarker,R30
+                 ;    1137  ucUART_receive_wrmarker =0;
+000968 24cc      	CLR  R12
+                 ;    1138  ucUART_receive_rdmarker =0;
+000969 24dd      	CLR  R13
+                 ;    1139 }
+00096a 9508      	RET
+                 ;    1140 //-------------------------------------------------------------------
+                 ;    1141 // описание: Проверка состояния приемного буфера
+                 ;    1142 // параметры:    нет
+                 ;    1143 // возвращаемое  значение:  нет
+                 ;    1144 //-------------------------------------------------------------------
+                 ;    1145 unsigned char UART_read_check(void)
+                 ;    1146 {
+                 _UART_read_check:
+                 ;    1147  if(ucUART_receive_rdmarker == ucUART_receive_wrmarker) return 0;//приемный буфер пуст
+00096b 14cd      	CP   R12,R13
+00096c f411      	BRNE _0x9C
+00096d e0e0      	LDI  R30,LOW(0)
+00096e 9508      	RET
+                 ;    1148  return 1;
+                 _0x9C:
+00096f e0e1      	LDI  R30,LOW(1)
+000970 9508      	RET
+                 ;    1149 }
+                 ;    1150 //-------------------------------------------------------------------
+                 ;    1151 // описание: Чтение байта из приемного буфера
+                 ;    1152 // параметры:    нет
+                 ;    1153 // возвращаемое  значение:  нет
+                 ;    1154 //-------------------------------------------------------------------
+                 ;    1155 unsigned char UART_read_byte(void)
+                 ;    1156 {
+                 _UART_read_byte:
+                 ;    1157  unsigned char ucByte;
+                 ;    1158  while(ucUART_receive_rdmarker == ucUART_receive_wrmarker);//ждем если буфер еще пуст
+000971 931a      	ST   -Y,R17
+                 ;	ucByte -> R17
+                 _0x9D:
+000972 14cd      	CP   R12,R13
+000973 f3f1      	BREQ _0x9D
+                 ;    1159  ucByte = ucUART_inbuf[ucUART_receive_rdmarker];
+000974 2ded      	MOV  R30,R13
+000975 e0f0      	LDI  R31,0
+000976 5ae0      	SUBI R30,LOW(-_ucUART_inbuf)
+000977 4ffd      	SBCI R31,HIGH(-_ucUART_inbuf)
+000978 8110      	LD   R17,Z
+                 ;    1160  ucUART_receive_rdmarker = ucUART_receive_rdmarker +1;
+000979 94d3      	INC  R13
+                 ;    1161  ucUART_receive_rdmarker = ucUART_receive_rdmarker & UART_LEN_INBUFFER;
+00097a e3ef      	LDI  R30,LOW(63)
+00097b 22de      	AND  R13,R30
+                 ;    1162  return ucByte;
+00097c 2fe1      	MOV  R30,R17
+00097d 9119      	LD   R17,Y+
+00097e 9508      	RET
+                 ;    1163 }
+                 ;    1164 //-------------------------------------------------------------------
+                 ;    1165 // описание: Отправка одного байта в UART
+                 ;    1166 // параметры:    ucByte - байт данных
+                 ;    1167 // возвращаемое  значение:  нет
+                 ;    1168 //-------------------------------------------------------------------
+                 ;    1169 void UART_send_byte(unsigned char ucByte)
+                 ;    1170 {
+                 _UART_send_byte:
+                 ;    1171  unsigned char ucMarker;
+                 ;    1172  ucMarker = ucUART_transmit_wrmarker + 1;
+00097f 931a      	ST   -Y,R17
+                 ;	ucByte -> Y+1
+                 ;	ucMarker -> R17
+000980 91e0 02a1 	LDS  R30,_ucUART_transmit_wrmarker
+000982 5fef      	SUBI R30,-LOW(1)
+000983 2f1e      	MOV  R17,R30
+                 ;    1173  ucMarker = ucMarker & UART_LEN_OUTBUFFER;
+000984 731f      	ANDI R17,LOW(63)
+                 ;    1174 
+                 ;    1175  while(ucMarker == ucUART_transmit_rdmarker);		//ждем если буфер еще не освободился
+                 _0xA0:
+000985 91e0 02a0 	LDS  R30,_ucUART_transmit_rdmarker
+000987 17e1      	CP   R30,R17
+000988 f3e1      	BREQ _0xA0
+                 ;    1176 
+                 ;    1177  ucUART_outbuf[ucUART_transmit_wrmarker] = ucByte;
+000989 91e0 02a1 	LDS  R30,_ucUART_transmit_wrmarker
+00098b e0f0      	LDI  R31,0
+00098c 55ee      	SUBI R30,LOW(-_ucUART_outbuf)
+00098d 4ffd      	SBCI R31,HIGH(-_ucUART_outbuf)
+00098e 81a9      	LDD  R26,Y+1
+00098f 83a0      	STD  Z+0,R26
+                 ;    1178  ucUART_transmit_wrmarker = ucMarker;			//новое занчение указателя
+000990 9310 02a1 	STS  _ucUART_transmit_wrmarker,R17
+                 ;    1179  UCSRB = UCSRB | 0x20;					//разрешим передачу символа
+000992 9a55      	SBI  0xA,5
+                 ;    1180 }
+000993 8118      	LDD  R17,Y+0
+000994 9622      	ADIW R28,2
+000995 9508      	RET
+                 ;    1181 //-------------------------------------------------------------------
+                 ;    1182 // описание: Обработка прерывание от приемника UART
+                 ;    1183 // параметры:    нет
+                 ;    1184 // возвращаемое  значение:  нет
+                 ;    1185 //-------------------------------------------------------------------
+                 ;    1186 interrupt [USART_RXC] void Uart_rxc(void)
+                 ;    1187 {
+                 _Uart_rxc:
+000996 93aa      	ST   -Y,R26
+000997 93ba      	ST   -Y,R27
+000998 93ea      	ST   -Y,R30
+000999 b7ef      	IN   R30,SREG
+00099a 93ea      	ST   -Y,R30
+                 ;    1188  ucUART_inbuf[ucUART_receive_wrmarker] = UDR;          //сохраним принятый байт в приемном буфере
+00099b 2dac      	MOV  R26,R12
+00099c e0b0      	LDI  R27,0
+00099d 5aa0      	SUBI R26,LOW(-_ucUART_inbuf)
+00099e 4fbd      	SBCI R27,HIGH(-_ucUART_inbuf)
+00099f b1ec      	IN   R30,0xC
+0009a0 93ec      	ST   X,R30
+                 ;    1189  ucUART_receive_wrmarker = ucUART_receive_wrmarker +1;
+0009a1 94c3      	INC  R12
+                 ;    1190  ucUART_receive_wrmarker = ucUART_receive_wrmarker & UART_LEN_INBUFFER;
+0009a2 e3ef      	LDI  R30,LOW(63)
+0009a3 22ce      	AND  R12,R30
+                 ;    1191 }
+0009a4 91e9      	LD   R30,Y+
+0009a5 bfef      	OUT  SREG,R30
+0009a6 91e9      	LD   R30,Y+
+0009a7 91b9      	LD   R27,Y+
+0009a8 91a9      	LD   R26,Y+
+0009a9 9518      	RETI
+                 ;    1192 //-------------------------------------------------------------------
+                 ;    1193 // описание: Обработка прерывание от передатчика UART
+                 ;    1194 // параметры:    нет
+                 ;    1195 // возвращаемое  значение:  нет
+                 ;    1196 //-------------------------------------------------------------------
+                 ;    1197 interrupt [USART_DRE] void Uart_dre(void)
+                 ;    1198 {
+                 _Uart_dre:
+0009aa 93aa      	ST   -Y,R26
+0009ab 93ea      	ST   -Y,R30
+0009ac 93fa      	ST   -Y,R31
+0009ad b7ef      	IN   R30,SREG
+0009ae 93ea      	ST   -Y,R30
+                 ;    1199  if(ucUART_transmit_wrmarker != ucUART_transmit_rdmarker)//буфер еще не пуст
+0009af 91e0 02a0 	LDS  R30,_ucUART_transmit_rdmarker
+0009b1 91a0 02a1 	LDS  R26,_ucUART_transmit_wrmarker
+0009b3 17ea      	CP   R30,R26
+0009b4 f0a1      	BREQ _0xA3
+                 ;    1200   {
+                 ;    1201    PORTB = PORTB ^ 0x08;
+0009b5 b3e8      	IN   R30,0x18
+0009b6 e0a8      	LDI  R26,LOW(8)
+0009b7 27ea      	EOR  R30,R26
+0009b8 bbe8      	OUT  0x18,R30
+                 ;    1202    UDR = ucUART_outbuf[ucUART_transmit_rdmarker];
+0009b9 91e0 02a0 	LDS  R30,_ucUART_transmit_rdmarker
+0009bb e0f0      	LDI  R31,0
+0009bc 55ee      	SUBI R30,LOW(-_ucUART_outbuf)
+0009bd 4ffd      	SBCI R31,HIGH(-_ucUART_outbuf)
+0009be 81e0      	LD   R30,Z
+0009bf b9ec      	OUT  0xC,R30
+                 ;    1203    ucUART_transmit_rdmarker = ucUART_transmit_rdmarker + 1;
+0009c0 91e0 02a0 	LDS  R30,_ucUART_transmit_rdmarker
+0009c2 5fef      	SUBI R30,-LOW(1)
+0009c3 93e0 02a0 	STS  _ucUART_transmit_rdmarker,R30
+                 ;    1204    ucUART_transmit_rdmarker = ucUART_transmit_rdmarker & UART_LEN_OUTBUFFER;
+0009c5 73ef      	ANDI R30,LOW(0x3F)
+0009c6 93e0 02a0 	STS  _ucUART_transmit_rdmarker,R30
+                 ;    1205   }
+                 ;    1206  else UCSRB = UCSRB & 0xDF;
+0009c8 c001      	RJMP _0xA4
+                 _0xA3:
+0009c9 9855      	CBI  0xA,5
+                 ;    1207 }
+                 _0xA4:
+0009ca 91e9      	LD   R30,Y+
+0009cb bfef      	OUT  SREG,R30
+0009cc 91f9      	LD   R31,Y+
+0009cd 91e9      	LD   R30,Y+
+0009ce 91a9      	LD   R26,Y+
+0009cf 9518      	RETI
+                 
+                 
+                 __ORD12:
+0009d0 2bea      	OR   R30,R26
+0009d1 2bfb      	OR   R31,R27
+0009d2 2b68      	OR   R22,R24
+0009d3 2b79      	OR   R23,R25
+0009d4 9508      	RET
+                 
+                 __LSLD12:
+0009d5 23ee      	TST  R30
+0009d6 2e0e      	MOV  R0,R30
+0009d7 01fd      	MOVW R30,R26
+0009d8 01bc      	MOVW R22,R24
+0009d9 f031      	BREQ __LSLD12R
+                 __LSLD12L:
+0009da 0fee      	LSL  R30
+0009db 1fff      	ROL  R31
+0009dc 1f66      	ROL  R22
+0009dd 1f77      	ROL  R23
+0009de 940a      	DEC  R0
+0009df f7d1      	BRNE __LSLD12L
+                 __LSLD12R:
+0009e0 9508      	RET
+                 
+                 __LSRD12:
+0009e1 23ee      	TST  R30
+0009e2 2e0e      	MOV  R0,R30
+0009e3 01fd      	MOVW R30,R26
+0009e4 01bc      	MOVW R22,R24
+0009e5 f031      	BREQ __LSRD12R
+                 __LSRD12L:
+0009e6 9576      	LSR  R23
+0009e7 9567      	ROR  R22
+0009e8 95f7      	ROR  R31
+0009e9 95e7      	ROR  R30
+0009ea 940a      	DEC  R0
+0009eb f7d1      	BRNE __LSRD12L
+                 __LSRD12R:
+0009ec 9508      	RET
+                 
+                 __LSRD1:
+0009ed 9576      	LSR  R23
+0009ee 9567      	ROR  R22
+0009ef 95f7      	ROR  R31
+0009f0 95e7      	ROR  R30
+0009f1 9508      	RET
+                 
+                 __LSRD16:
+0009f2 2fe6      	MOV  R30,R22
+0009f3 2ff7      	MOV  R31,R23
+0009f4 e060      	LDI  R22,0
+0009f5 e070      	LDI  R23,0
+0009f6 9508      	RET
+                 
+                 __PUTPARD1:
+0009f7 937a      	ST   -Y,R23
+0009f8 936a      	ST   -Y,R22
+0009f9 93fa      	ST   -Y,R31
+0009fa 93ea      	ST   -Y,R30
+0009fb 9508      	RET
+                 
+                 __SAVELOCR6:
+0009fc 935a      	ST   -Y,R21
+                 __SAVELOCR5:
+0009fd 934a      	ST   -Y,R20
+                 __SAVELOCR4:
+0009fe 933a      	ST   -Y,R19
+                 __SAVELOCR3:
+0009ff 932a      	ST   -Y,R18
+                 __SAVELOCR2:
+000a00 931a      	ST   -Y,R17
+000a01 930a      	ST   -Y,R16
+000a02 9508      	RET
+                 
+                 __LOADLOCR6:
+000a03 815d      	LDD  R21,Y+5
+                 __LOADLOCR5:
+000a04 814c      	LDD  R20,Y+4
+                 __LOADLOCR4:
+000a05 813b      	LDD  R19,Y+3
+                 __LOADLOCR3:
+000a06 812a      	LDD  R18,Y+2
+                 __LOADLOCR2:
+000a07 8119      	LDD  R17,Y+1
+000a08 8108      	LD   R16,Y
+000a09 9508      	RET
+                 
+                 ;END OF CODE MARKER
+                 __END_OF_CODE:
+
+
+RESOURCE USE INFORMATION
+------------------------
+
+Notice:
+The register and instruction counts are symbol table hit counts,
+and hence implicitly used resources are not counted, eg, the
+'lpm' instruction without operands implicitly uses r0 and z,
+none of which are counted.
+
+x,y,z are separate entities in the symbol table and are
+counted separately from r26..r31 here.
+
+.dseg memory usage only counts static data declared with .byte
+
+ATmega16 register use summary:
+r0 :   8 r1 :   1 r2 :   0 r3 :   0 r4 :   4 r5 :   5 r6 :   4 r7 :   1 
+r8 :   6 r9 :   4 r10:   6 r11:   4 r12:   6 r13:   6 r14:   0 r15:   0 
+r16:  18 r17:  64 r18:  16 r19:  25 r20:  21 r21:  15 r22:  51 r23:  45 
+r24:  16 r25:   7 r26:  93 r27:  63 r28:  22 r29:   1 r30:1028 r31: 247 
+x  :   9 y  : 636 z  :  14 
+Registers used: 31 out of 35 (88.6%)
+
+ATmega16 instruction use summary:
+adc   :  13 add   :  13 adiw  :  20 and   :   2 andi  :  12 asr   :   0 
+bclr  :   0 bld   :   0 brbc  :   0 brbs  :   0 brcc  :   0 brcs  :   0 
+break :   0 breq  :  24 brge  :   0 brhc  :   0 brhs  :   0 brid  :   0 
+brie  :   0 brlo  :   6 brlt  :   0 brmi  :   0 brne  :  76 brpl  :   0 
+brsh  :  10 brtc  :   0 brts  :   0 brvc  :   0 brvs  :   0 bset  :   0 
+bst   :   0 call  : 292 cbi   :  11 cbr   :   0 clc   :   0 clh   :   0 
+cli   :   2 cln   :   0 clr   :  29 cls   :   0 clt   :   0 clv   :   0 
+clz   :   0 com   :   0 cp    :  19 cpc   :  13 cpi   :  80 cpse  :   0 
+dec   :   3 eor   :   2 fmul  :   0 fmuls :   0 fmulsu:   0 icall :   0 
+ijmp  :   0 in    :   8 inc   :   3 jmp   :  31 ld    :  22 ldd   : 166 
+ldi   : 477 lds   :  31 lpm   :   7 lsl   :   7 lsr   :   2 mov   :  50 
+movw  :  39 mul   :   0 muls  :   0 mulsu :   0 neg   :   0 nop   :   3 
+or    :  26 ori   :   3 out   :  37 pop   :   0 push  :   0 rcall :   0 
+ret   :  36 reti  :   3 rjmp  : 101 rol   :   9 ror   :   6 sbc   :   2 
+sbci  :   7 sbi   :   7 sbic  :   0 sbis  :   1 sbiw  :  11 sbr   :   0 
+sbrc  :   0 sbrs  :   0 sec   :   0 seh   :   0 sei   :   1 sen   :   0 
+ser   :   0 ses   :   0 set   :   0 sev   :   0 sez   :   0 sleep :   0 
+spm   :   0 st    : 373 std   :  91 sts   :   5 sub   :   2 subi  :  14 
+swap  :   0 tst   :   2 wdr   :   0 
+Instructions used: 51 out of 111 (45.9%)
+
+ATmega16 memory use summary [bytes]:
+Segment   Begin    End      Code   Data   Used    Size   Use%
+---------------------------------------------------------------
+[.cseg] 0x000000 0x001414   5138      2   5140   16384  31.4%
+[.dseg] 0x000060 0x0002e2      0    386    386    1024  37.7%
+[.eseg] 0x000000 0x000001      0      1      1     512   0.2%
+
+Assembly complete, 0 errors, 7 warnings
